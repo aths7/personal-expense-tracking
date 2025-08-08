@@ -8,7 +8,7 @@ import {
   LayoutDashboard, 
   Receipt, 
   Tag, 
-  LogOut,
+  Trophy,
   DollarSign
 } from 'lucide-react';
 
@@ -32,14 +32,19 @@ const navigation = [
     href: '/categories',
     icon: Tag,
   },
+  {
+    name: 'Gamification',
+    href: '/gamification',
+    icon: Trophy,
+  },
 ];
 
 export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <div className={cn('pb-12 w-64', className)}>
-      <div className="space-y-4 py-4">
+    <div className={cn('h-full w-64 flex flex-col', className)}>
+      <div className="flex-1 space-y-4 py-4">
         <div className="px-3 py-2">
           <Link href="/dashboard" className="flex items-center space-x-2 mb-8">
             <DollarSign className="h-8 w-8 text-green-600" />

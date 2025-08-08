@@ -6,19 +6,18 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { ExpenseForm } from '@/components/forms/expense-form';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useCategories } from '@/hooks/useCategories';
-import { formatCurrency } from '@/utils/currency';
+import { formatCurrency } from '@/lib/currency';
 import { formatDate } from '@/utils/dates';
 import { type FilterOptions, type ExpenseFormData } from '@/types';
 import {
   Plus,
   Search,
-  Filter,
   Edit,
   Trash2,
   X,

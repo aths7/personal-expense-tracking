@@ -2,10 +2,10 @@ import { createClient } from '@/lib/supabase/client';
 import type { Category, CategoryFormData } from '@/types';
 
 export interface CategoriesService {
-  getCategories: () => Promise<{ data: Category[] | null; error: any }>;
-  createCategory: (data: CategoryFormData) => Promise<{ data: Category | null; error: any }>;
-  updateCategory: (id: string, data: Partial<CategoryFormData>) => Promise<{ data: Category | null; error: any }>;
-  deleteCategory: (id: string) => Promise<{ error: any }>;
+  getCategories: () => Promise<{ data: Category[] | null; error: Error | null }>;
+  createCategory: (data: CategoryFormData) => Promise<{ data: Category | null; error: Error | null }>;
+  updateCategory: (id: string, data: Partial<CategoryFormData>) => Promise<{ data: Category | null; error: Error | null }>;
+  deleteCategory: (id: string) => Promise<{ error: Error | null }>;
 }
 
 export const categoriesService: CategoriesService = {

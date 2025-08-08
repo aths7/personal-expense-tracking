@@ -1,13 +1,17 @@
 import { createClient } from '@/lib/supabase/client';
-import type { Expense, ExpenseFormData, FilterOptions } from '@/types';
+import type { Expense, ExpenseFormData, FilterOptions, Category } from '@/types';
+
+interface ExpenseWithCategory extends Expense {
+  category?: Category;
+}
 
 export interface ExpensesService {
-  getExpenses: (filters?: FilterOptions) => Promise<{ data: Expense[] | null; error: any }>;
-  getExpenseById: (id: string) => Promise<{ data: Expense | null; error: any }>;
-  createExpense: (data: ExpenseFormData) => Promise<{ data: Expense | null; error: any }>;
-  updateExpense: (id: string, data: Partial<ExpenseFormData>) => Promise<{ data: Expense | null; error: any }>;
-  deleteExpense: (id: string) => Promise<{ error: any }>;
-  getExpenseStats: () => Promise<{ data: any; error: any }>;
+  getExpenses: (filters?: FilterOptions) => Promise<{ data: ExpenseWithCategory[] | null; error: Error | null }>;
+  getExpenseById: (id: string) => Promise<{ data: ExpenseWithCategory | null; error: Error | null }>;
+  createExpense: (data: ExpenseFormData) => Promise<{ data: ExpenseWithCategory | null; error: Error | null }>;
+  updateExpense: (id: string, data: Partial<ExpenseFormData>) => Promise<{ data: ExpenseWithCategory | null; error: Error | null }>;
+  deleteExpense: (id: string) => Promise<{ error: Error | null }>;
+  getExpenseStats: () => Promise<{ data: ExpenseWithCategory[] | null; error: Error | null }>;
 }
 
 export const expensesService: ExpensesService = {

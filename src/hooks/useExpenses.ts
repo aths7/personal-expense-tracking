@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { expensesService } from '@/services/expenses';
+import { gamificationService } from '@/services/gamification';
 import type { Expense, ExpenseFormData, FilterOptions } from '@/types';
 import { toast } from 'sonner';
 
@@ -25,7 +26,7 @@ export const useExpenses = (initialFilters: FilterOptions = {}) => {
       }
       
       setExpenses(data || []);
-    } catch (err) {
+    } catch {
       const errorMessage = 'An unexpected error occurred';
       setError(errorMessage);
       toast.error(errorMessage);
@@ -46,11 +47,28 @@ export const useExpenses = (initialFilters: FilterOptions = {}) => {
       if (newExpense) {
         setExpenses(prev => [newExpense, ...prev]);
         toast.success('Expense created successfully!');
+        
+        // Check for achievements
+        setTimeout(async () => {
+          await gamificationService.checkAchievements();
+        }, 1000);
+        
         return { success: true, data: newExpense };
       }
     } catch (err) {
       toast.error('An unexpected error occurred');
       return { success: false, error: err };
+    }
+  };
+
+  // Alias for createExpense for backward compatibility
+  const addExpense = createExpense;
+
+  const checkAchievements = async () => {
+    try {
+      await gamificationService.checkAchievements();
+    } catch {
+      // Silently handle achievement check failures
     }
   };
 
@@ -112,10 +130,12 @@ export const useExpenses = (initialFilters: FilterOptions = {}) => {
     error,
     filters,
     createExpense,
+    addExpense,
     updateExpense,
     deleteExpense,
     updateFilters,
     clearFilters,
+    checkAchievements,
     refetch: fetchExpenses,
   };
 };

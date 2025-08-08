@@ -2,9 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { expensesService } from '@/services/expenses';
-import type { DashboardStats } from '@/types';
+import type { DashboardStats, Expense, Category } from '@/types';
 import { getCurrentMonth, getLastMonth } from '@/utils/dates';
 import { toast } from 'sonner';
+
+interface ExpenseWithCategory extends Expense {
+  category?: Category;
+}
 
 export const useDashboard = () => {
   const [stats, setStats] = useState<DashboardStats>({
@@ -35,23 +39,23 @@ export const useDashboard = () => {
         const lastMonth = getLastMonth();
         
         // Calculate totals
-        const totalExpenses = data.reduce((sum: number, expense: any) => sum + expense.amount, 0);
+        const totalExpenses = data.reduce((sum: number, expense: ExpenseWithCategory) => sum + expense.amount, 0);
         
         const totalThisMonth = data
-          .filter((expense: any) => 
+          .filter((expense: ExpenseWithCategory) => 
             expense.date >= currentMonth.start && expense.date <= currentMonth.end
           )
-          .reduce((sum: number, expense: any) => sum + expense.amount, 0);
+          .reduce((sum: number, expense: ExpenseWithCategory) => sum + expense.amount, 0);
         
         const totalLastMonth = data
-          .filter((expense: any) => 
+          .filter((expense: ExpenseWithCategory) => 
             expense.date >= lastMonth.start && expense.date <= lastMonth.end
           )
-          .reduce((sum: number, expense: any) => sum + expense.amount, 0);
+          .reduce((sum: number, expense: ExpenseWithCategory) => sum + expense.amount, 0);
 
         // Calculate category breakdown
-        const categoryMap = new Map();
-        data.forEach((expense: any) => {
+        const categoryMap = new Map<string, { category: string; amount: number; color: string }>();
+        data.forEach((expense: ExpenseWithCategory) => {
           const categoryName = expense.category?.name || 'Uncategorized';
           const categoryColor = expense.category?.color || '#D5DBDB';
           
@@ -83,7 +87,7 @@ export const useDashboard = () => {
           monthlyMap.set(monthKey, { month: monthName, amount: 0 });
         }
         
-        data.forEach((expense: any) => {
+        data.forEach((expense: ExpenseWithCategory) => {
           const monthKey = expense.date.slice(0, 7);
           if (monthlyMap.has(monthKey)) {
             const existing = monthlyMap.get(monthKey);
@@ -104,7 +108,7 @@ export const useDashboard = () => {
           monthlyTrend,
         });
       }
-    } catch (err) {
+    } catch {
       const errorMessage = 'An unexpected error occurred';
       setError(errorMessage);
       toast.error(errorMessage);

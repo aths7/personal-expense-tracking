@@ -132,7 +132,7 @@ export default function CategoriesPage() {
               <CardTitle>Your Categories</CardTitle>
             </div>
             <CardDescription>
-              Custom categories you've created
+              Custom categories you&apos;ve created
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -4,9 +4,12 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExpenseCharts, CategoryBarChart } from '@/components/charts/expense-charts';
+import { SeasonalWidget } from '@/components/seasonal/seasonal-widget';
+import { QuickExpenseButton } from '@/components/expenses/quick-expense-button';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useExpenses } from '@/hooks/useExpenses';
-import { formatCurrency } from '@/utils/currency';
+import { useGamification } from '@/hooks/useGamification';
+import { formatCurrency } from '@/lib/currency';
 import { formatDate } from '@/utils/dates';
 import { 
   DollarSign, 
@@ -14,7 +17,10 @@ import {
   TrendingDown, 
   Plus,
   Receipt,
-  Calendar
+  Calendar,
+  Trophy,
+  Flame,
+  Star
 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
@@ -29,7 +35,7 @@ function StatCard({
   title: string;
   value: string;
   description: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   trend?: 'up' | 'down' | 'neutral';
 }) {
   const getTrendIcon = () => {
@@ -57,7 +63,8 @@ function StatCard({
 
 export default function DashboardPage() {
   const { stats, loading: statsLoading } = useDashboard();
-  const { expenses, loading: expensesLoading } = useExpenses({});
+  const { expenses, loading: expensesLoading, checkAchievements } = useExpenses({});
+  const { gameStats, loading: gameLoading } = useGamification();
 
   const recentExpenses = useMemo(() => {
     return expenses.slice(0, 5);
@@ -74,7 +81,7 @@ export default function DashboardPage() {
     return 'neutral';
   };
 
-  if (statsLoading || expensesLoading) {
+  if (statsLoading || expensesLoading || gameLoading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
@@ -95,12 +102,15 @@ export default function DashboardPage() {
               Overview of your financial activity
             </p>
           </div>
-          <Button asChild>
-            <Link href="/expenses?new=true">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Expense
-            </Link>
-          </Button>
+          <div className="flex items-center space-x-3">
+            <QuickExpenseButton />
+            <Button asChild variant="outline">
+              <Link href="/expenses?new=true">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Expense
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -138,42 +148,92 @@ export default function DashboardPage() {
         {/* Category Bar Chart */}
         <CategoryBarChart categoryBreakdown={stats.categoryBreakdown} />
 
-        {/* Recent Expenses */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Expenses</CardTitle>
-            <CardDescription>
-              Your latest transactions
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {recentExpenses.map((expense) => (
-              <div key={expense.id} className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">{expense.description}</p>
-                  <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                    <span>{expense.category?.name}</span>
-                    <span>•</span>
-                    <span>{formatDate(expense.date)}</span>
+        {/* Bottom Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* Recent Expenses */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Expenses</CardTitle>
+              <CardDescription>
+                Your latest transactions
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {recentExpenses.map((expense) => (
+                <div key={expense.id} className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">{expense.description}</p>
+                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                      <span>{expense.category?.name}</span>
+                      <span>•</span>
+                      <span>{formatDate(expense.date)}</span>
+                    </div>
+                  </div>
+                  <div className="text-sm font-medium">
+                    {formatCurrency(expense.amount)}
                   </div>
                 </div>
-                <div className="text-sm font-medium">
-                  {formatCurrency(expense.amount)}
+              ))}
+              {recentExpenses.length === 0 && (
+                <p className="text-muted-foreground text-center py-4">
+                  No expenses recorded yet
+                </p>
+              )}
+              {recentExpenses.length > 0 && (
+                <Button asChild variant="outline" className="w-full mt-4">
+                  <Link href="/expenses">View All Expenses</Link>
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Gamification Card */}
+          {gameStats && (
+            <Card className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 border-purple-200 dark:border-purple-800">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Trophy className="h-5 w-5 text-yellow-500" />
+                  <span>Your Progress</span>
+                </CardTitle>
+                <CardDescription>
+                  Level up your expense tracking game!
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold">{gameStats.levelInfo.name}</p>
+                    <p className="text-sm text-muted-foreground">Level {gameStats.levelInfo.level}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-lg">{gameStats.profile.total_points}</p>
+                    <p className="text-sm text-muted-foreground">points</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-            {recentExpenses.length === 0 && (
-              <p className="text-muted-foreground text-center py-4">
-                No expenses recorded yet
-              </p>
-            )}
-            {recentExpenses.length > 0 && (
-              <Button asChild variant="outline" className="w-full mt-4">
-                <Link href="/expenses">View All Expenses</Link>
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <Flame className="h-5 w-5 text-orange-500 mx-auto mb-1" />
+                    <p className="font-bold">{gameStats.profile.current_streak}</p>
+                    <p className="text-xs text-muted-foreground">day streak</p>
+                  </div>
+                  <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                    <Star className="h-5 w-5 text-blue-500 mx-auto mb-1" />
+                    <p className="font-bold">{gameStats.achievements.length}</p>
+                    <p className="text-xs text-muted-foreground">achievements</p>
+                  </div>
+                </div>
+
+                <Button asChild variant="outline" className="w-full">
+                  <Link href="/gamification">View All Progress</Link>
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Seasonal Events Widget */}
+          <SeasonalWidget />
+        </div>
       </div>
     </DashboardLayout>
   );

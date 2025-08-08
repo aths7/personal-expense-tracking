@@ -11,7 +11,7 @@ export const DEFAULT_CATEGORIES = [
   { name: 'Other', color: '#D5DBDB', icon: 'MoreHorizontal' },
 ];
 
-export const CURRENCY_SYMBOL = '$';
+export const CURRENCY_SYMBOL = '₹';
 
 export const DATE_FORMATS = {
   DISPLAY: 'MMM dd, yyyy',

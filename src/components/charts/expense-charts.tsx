@@ -12,12 +12,11 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   BarChart,
   Bar,
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency } from '@/utils/currency';
+import { formatCurrency } from '@/lib/currency';
 import type { DashboardStats } from '@/types';
 
 interface ExpenseChartsProps {
@@ -42,7 +41,7 @@ export function ExpenseCharts({ stats }: ExpenseChartsProps) {
     }));
   }, [stats.monthlyTrend]);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-background border rounded-lg shadow-lg p-3">
@@ -56,7 +55,7 @@ export function ExpenseCharts({ stats }: ExpenseChartsProps) {
     return null;
   };
 
-  const PieTooltip = ({ active, payload }: any) => {
+  const PieTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ name: string; value: number }> }) => {
     if (active && payload && payload.length) {
       const data = payload[0];
       return (
@@ -124,8 +123,8 @@ export function ExpenseCharts({ stats }: ExpenseChartsProps) {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
+                {pieData.map((entry) => (
+                  <Cell key={entry.name} fill={entry.color || '#8884d8'} />
                 ))}
               </Pie>
               <Tooltip content={<PieTooltip />} />
@@ -197,7 +196,7 @@ export function CategoryBarChart({ categoryBreakdown }: CategoryBarChartProps) {
     );
   }
 
-  const CustomBarTooltip = ({ active, payload, label }: any) => {
+  const CustomBarTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: { fullName: string; amount: number } }> }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
