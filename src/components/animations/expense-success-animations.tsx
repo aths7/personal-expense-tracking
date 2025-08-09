@@ -5,13 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle2, 
   Sparkles, 
-  TrendingUp,
   Star,
   Zap,
   Heart,
   Target,
-  Award,
-  Coins
+  Award
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/currency';
 
@@ -172,7 +170,7 @@ export function ExpenseSuccessAnimation({
             {/* Sparkles */}
             {Array.from({ length: 8 }).map((_, i) => (
               <motion.div
-                key={i}
+                key={`sparkle-${Date.now()}-${i}`}
                 initial={{ 
                   scale: 0, 
                   x: 0, 
@@ -200,7 +198,7 @@ export function ExpenseSuccessAnimation({
             {/* Floating Hearts/Stars */}
             {Array.from({ length: 6 }).map((_, i) => (
               <motion.div
-                key={`heart-${i}`}
+                key={`heart-${Date.now()}-${i}`}
                 initial={{ 
                   scale: 0,
                   x: 0,
@@ -245,11 +243,13 @@ interface RippleEffectProps {
 export function RippleEffect({ isActive, origin = { x: 50, y: 50 }, color = 'green' }: RippleEffectProps) {
   if (!isActive) return null;
 
+  const timestamp = Date.now();
+
   return (
     <div className="fixed inset-0 pointer-events-none z-40">
       {Array.from({ length: 3 }).map((_, i) => (
         <motion.div
-          key={i}
+          key={`ripple-${timestamp}-${i}`}
           initial={{ 
             scale: 0,
             opacity: 0.6
@@ -393,11 +393,13 @@ export function ConfettiBurst({
 
   if (!isActive) return null;
 
+  const timestamp = Date.now();
+  
   return (
     <div className="fixed inset-0 pointer-events-none z-50">
       {Array.from({ length: getParticleCount() }).map((_, i) => (
         <motion.div
-          key={i}
+          key={`confetti-${timestamp}-${i}`}
           initial={{
             x: '50vw',
             y: '50vh',

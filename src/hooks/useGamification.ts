@@ -55,6 +55,9 @@ export const useGamification = () => {
         await fetchGameStats(); // Refresh to show new budget goal
         return { success: true, data: result.data };
       }
+      
+      // Fallback in case result.data is null but no error
+      return { success: false, error: new Error('Unknown error occurred') };
     } catch (error) {
       toast.error('An unexpected error occurred');
       return { success: false, error };
@@ -75,6 +78,9 @@ export const useGamification = () => {
         await fetchGameStats();
         return { success: true, data: result.data };
       }
+      
+      // Fallback in case result.data is null but no error
+      return { success: false, error: new Error('Unknown error occurred') };
     } catch (error) {
       toast.error('An unexpected error occurred');
       return { success: false, error };

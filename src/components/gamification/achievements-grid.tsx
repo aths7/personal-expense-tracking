@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { GameStats, Achievement } from '@/types/gamification';
 import { ACHIEVEMENT_CATEGORIES } from '@/constants/gamification';
-import { 
+import {
   Trophy,
   Lock,
   Star,
@@ -13,7 +13,8 @@ import {
   Shuffle,
   DollarSign,
   PiggyBank,
-  CreditCard
+  CreditCard,
+  LucideIcon
 } from 'lucide-react';
 
 interface AchievementsGridProps {
@@ -25,7 +26,7 @@ export function AchievementsGrid({ gameStats, availableAchievements }: Achieveme
   const earnedAchievementIds = new Set(gameStats.achievements.map(a => a.achievement_id));
 
   const getIconComponent = (iconName: string) => {
-    const icons: Record<string, React.ComponentType<{ className?: string }>> = {
+    const icons: Record<string, LucideIcon> = {
       Trophy, Star, Award, Target, Flame, Play, Shuffle, DollarSign, PiggyBank, CreditCard,
     };
     return icons[iconName] || Trophy;
@@ -34,8 +35,8 @@ export function AchievementsGrid({ gameStats, availableAchievements }: Achieveme
   const getCategoryIcon = (categoryKey: string) => {
     const category = ACHIEVEMENT_CATEGORIES[categoryKey as keyof typeof ACHIEVEMENT_CATEGORIES];
     if (!category) return Play;
-    
-    const icons: Record<string, React.ComponentType<{ className?: string }>> = {
+
+    const icons: Record<string, LucideIcon> = {
       Play, Flame, Target, Shuffle, DollarSign, PiggyBank, CreditCard,
     };
     return icons[category.icon] || Play;
@@ -63,7 +64,7 @@ export function AchievementsGrid({ gameStats, availableAchievements }: Achieveme
       {Object.entries(achievementsByCategory).map(([categoryKey, achievements]) => {
         const category = ACHIEVEMENT_CATEGORIES[categoryKey as keyof typeof ACHIEVEMENT_CATEGORIES];
         const CategoryIcon = getCategoryIcon(categoryKey);
-        
+
         return (
           <div key={categoryKey} className="space-y-3">
             <div className="flex items-center space-x-2">
@@ -82,20 +83,18 @@ export function AchievementsGrid({ gameStats, availableAchievements }: Achieveme
                 const AchievementIcon = getIconComponent(achievement.icon || 'Trophy');
 
                 return (
-                  <Card 
-                    key={achievement.id} 
-                    className={`transition-all duration-200 ${
-                      isEarned 
-                        ? 'bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950 border-yellow-200 dark:border-yellow-800' 
-                        : 'opacity-75 hover:opacity-100'
-                    }`}
+                  <Card
+                    key={achievement.id}
+                    className={`transition-all duration-200 ${isEarned
+                      ? 'bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950 dark:to-orange-950 border-yellow-200 dark:border-yellow-800'
+                      : 'opacity-75 hover:opacity-100'
+                      }`}
                   >
                     <CardHeader className="pb-2">
                       <div className="flex items-start justify-between">
-                        <div 
-                          className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${
-                            isEarned ? 'shadow-lg' : ''
-                          }`}
+                        <div
+                          className={`w-10 h-10 rounded-full flex items-center justify-center text-white ${isEarned ? 'shadow-lg' : ''
+                            }`}
                           style={{ backgroundColor: isEarned ? achievement.badge_color : '#6B7280' }}
                         >
                           {isEarned ? (
@@ -110,9 +109,8 @@ export function AchievementsGrid({ gameStats, availableAchievements }: Achieveme
                       </div>
                     </CardHeader>
                     <CardContent className="pt-0">
-                      <h4 className={`font-semibold text-sm mb-1 ${
-                        isEarned ? 'text-yellow-800 dark:text-yellow-200' : ''
-                      }`}>
+                      <h4 className={`font-semibold text-sm mb-1 ${isEarned ? 'text-yellow-800 dark:text-yellow-200' : ''
+                        }`}>
                         {achievement.name}
                       </h4>
                       <p className="text-xs text-muted-foreground">

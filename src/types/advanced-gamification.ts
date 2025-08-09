@@ -7,7 +7,7 @@ export interface Character {
   unlock_points: number;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
   base_sprite: string;
-  animations: Record<string, any>;
+  animations: Record<string, string>;
   is_active: boolean;
   created_at: string;
 }
@@ -64,7 +64,7 @@ export interface SeasonalEvent {
   start_date: string;
   end_date: string;
   special_achievements: string[];
-  theme_overrides: Record<string, any>;
+  theme_overrides: Record<string, string>;
   bonus_multiplier: number;
   is_active: boolean;
   created_at: string;
@@ -74,7 +74,7 @@ export interface UserSeasonalEvent {
   id: string;
   user_id: string;
   event_id: string;
-  progress: Record<string, any>;
+  progress: Record<string, number>;
   rewards_claimed: string[];
   joined_at: string;
   event?: SeasonalEvent;
@@ -85,7 +85,7 @@ export interface ExpenseInteraction {
   user_id: string;
   expense_id: string;
   interaction_type: 'coin_flip' | 'category_chomp' | 'character_reaction';
-  animation_data: Record<string, any>;
+  animation_data: Record<string, unknown>;
   created_at: string;
 }
 
@@ -124,7 +124,7 @@ export interface ChallengeInvitation {
   challenger_id: string;
   challenged_id: string;
   challenge_type: 'savings_goal' | 'streak_battle' | 'category_limit';
-  challenge_data: Record<string, any>;
+  challenge_data: Record<string, unknown>;
   status: 'pending' | 'accepted' | 'declined' | 'completed';
   expires_at: string;
   created_at: string;

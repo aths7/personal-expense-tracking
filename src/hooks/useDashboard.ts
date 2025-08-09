@@ -60,9 +60,11 @@ export const useDashboard = () => {
           const categoryColor = expense.category?.color || '#D5DBDB';
           
           if (categoryMap.has(categoryName)) {
+            const existing = categoryMap.get(categoryName)!;
             categoryMap.set(categoryName, {
-              ...categoryMap.get(categoryName),
-              amount: categoryMap.get(categoryName).amount + expense.amount,
+              category: existing.category,
+              color: existing.color,
+              amount: existing.amount + expense.amount,
             });
           } else {
             categoryMap.set(categoryName, {

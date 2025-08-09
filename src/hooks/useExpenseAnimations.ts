@@ -5,7 +5,7 @@ import { getExpenseContext } from '@/lib/currency';
 
 interface AnimationTrigger {
   type: 'success' | 'ripple' | 'floating' | 'confetti' | 'money_rain';
-  config: any;
+  config: Record<string, unknown>;
   duration: number;
 }
 
@@ -53,6 +53,53 @@ export const useExpenseAnimations = () => {
       moneyRain: false,
     });
     setAnimationData({});
+  }, []);
+
+  const executeAnimationSequence = useCallback((animations: AnimationTrigger[]) => {
+    animations.forEach((animation, index) => {
+      setTimeout(() => {
+        setAnimationData(animation.config);
+        
+        switch (animation.type) {
+          case 'success':
+            setActiveAnimations(prev => ({ ...prev, success: true }));
+            break;
+          case 'ripple':
+            setActiveAnimations(prev => ({ ...prev, ripple: true }));
+            break;
+          case 'floating':
+            setActiveAnimations(prev => ({ ...prev, floating: true }));
+            break;
+          case 'confetti':
+            setActiveAnimations(prev => ({ ...prev, confetti: true }));
+            break;
+          case 'money_rain':
+            setActiveAnimations(prev => ({ ...prev, moneyRain: true }));
+            break;
+        }
+
+        // Auto-clear animation after duration
+        setTimeout(() => {
+          switch (animation.type) {
+            case 'success':
+              setActiveAnimations(prev => ({ ...prev, success: false }));
+              break;
+            case 'ripple':
+              setActiveAnimations(prev => ({ ...prev, ripple: false }));
+              break;
+            case 'floating':
+              setActiveAnimations(prev => ({ ...prev, floating: false }));
+              break;
+            case 'confetti':
+              setActiveAnimations(prev => ({ ...prev, confetti: false }));
+              break;
+            case 'money_rain':
+              setActiveAnimations(prev => ({ ...prev, moneyRain: false }));
+              break;
+          }
+        }, animation.duration);
+      }, index * 500); // Stagger animations by 500ms
+    });
   }, []);
 
   const triggerExpenseAnimation = useCallback((context: ExpenseAnimationContext) => {
@@ -158,7 +205,7 @@ export const useExpenseAnimations = () => {
       setTimeout(() => {
         setAnimationData({
           amount: 100, // Points for tracking large expense
-          type: 'points',
+          type: 'achievement',
           origin: { x: 75, y: 25 }
         });
         setActiveAnimations(prev => ({ ...prev, floating: true }));
@@ -167,41 +214,8 @@ export const useExpenseAnimations = () => {
 
     // Execute animation sequence
     executeAnimationSequence(animations);
-  }, [clearAllAnimations]);
+  }, [clearAllAnimations, executeAnimationSequence]);
 
-  const executeAnimationSequence = useCallback((animations: AnimationTrigger[]) => {
-    animations.forEach((animation, index) => {
-      setTimeout(() => {
-        setAnimationData(animation.config);
-        
-        switch (animation.type) {
-          case 'success':
-            setActiveAnimations(prev => ({ ...prev, success: true }));
-            break;
-          case 'ripple':
-            setActiveAnimations(prev => ({ ...prev, ripple: true }));
-            break;
-          case 'floating':
-            setActiveAnimations(prev => ({ ...prev, floating: true }));
-            break;
-          case 'confetti':
-            setActiveAnimations(prev => ({ ...prev, confetti: true }));
-            break;
-          case 'money_rain':
-            setActiveAnimations(prev => ({ ...prev, moneyRain: true }));
-            break;
-        }
-
-        // Clear animation after duration
-        setTimeout(() => {
-          setActiveAnimations(prev => ({
-            ...prev,
-            [animation.type === 'money_rain' ? 'moneyRain' : animation.type]: false
-          }));
-        }, animation.duration);
-      }, index * 100); // Slight delay between animations
-    });
-  }, []);
 
   const triggerStreakAnimation = useCallback((streakDays: number) => {
     setAnimationData({
@@ -221,7 +235,7 @@ export const useExpenseAnimations = () => {
   const triggerPointsAnimation = useCallback((points: number, origin?: { x: number; y: number }) => {
     setAnimationData({
       amount: points,
-      type: 'points',
+      type: 'achievement',
       origin: origin || { x: 50, y: 50 }
     });
     setActiveAnimations(prev => ({ ...prev, floating: true }));
@@ -242,7 +256,7 @@ export const useExpenseAnimations = () => {
 
   const triggerCustomAnimation = useCallback((
     type: keyof typeof activeAnimations,
-    config: any = {},
+    config: Record<string, unknown> = {},
     duration: number = 2000
   ) => {
     setAnimationData(config);

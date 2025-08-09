@@ -164,8 +164,8 @@ export function SeasonalRewards({
           selectedReward?.id === reward.id ? 'ring-2' : ''
         } ${isClaimed ? 'bg-green-50 border-green-200' : ''}`}
         style={{
-          ringColor: selectedReward?.id === reward.id ? event.theme_colors.primary : 'transparent'
-        }}>
+          '--tw-ring-color': selectedReward?.id === reward.id ? event.theme_colors.primary : 'transparent'
+        } as React.CSSProperties}>
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between">
               <div className="flex items-center space-x-2">
@@ -369,7 +369,7 @@ export function SeasonalRewards({
               <div className="text-center">
                 <div className="text-6xl mb-4">{selectedReward.icon}</div>
                 <h3 className="text-2xl font-bold mb-2">{selectedReward.name}</h3>
-                <Badge className={getRarityColor(selectedReward.rarity)} size="lg">
+                <Badge className={`${getRarityColor(selectedReward.rarity)} text-lg px-3 py-1`}>
                   {selectedReward.rarity}
                 </Badge>
                 <p className="text-gray-600 mt-4 mb-6">

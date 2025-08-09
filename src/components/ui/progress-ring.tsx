@@ -113,11 +113,11 @@ export function AnimatedCounter({
       >
         {prefix}
         <motion.span
-          initial={from}
-          animate={to}
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
           transition={{ duration, ease: 'easeOut' }}
         >
-          {from.toFixed(decimals)}
+          {to.toFixed(decimals)}
         </motion.span>
         {suffix}
       </motion.span>

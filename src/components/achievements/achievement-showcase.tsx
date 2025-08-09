@@ -30,7 +30,19 @@ import { useGamification } from '@/hooks/useGamification';
 import { advancedAchievementService } from '@/services/advanced-achievements';
 
 interface AchievementCardProps {
-  achievement: any;
+  achievement: {
+    id: string;
+    name: string;
+    description: string;
+    badge: string;
+    points: number;
+    rarity: string;
+    unlocked_at?: string;
+    progress?: number;
+    hint?: string;
+    hidden?: boolean;
+    category: string;
+  };
   isUnlocked: boolean;
   progress?: number;
   isHidden?: boolean;
@@ -255,9 +267,16 @@ function AchievementStats({ totalAchievements, unlockedAchievements, totalPoints
 export function AchievementShowcase() {
   const [showHidden, setShowHidden] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [showUnlockAnimation, setShowUnlockAnimation] = useState<any>(null);
+  const [showUnlockAnimation, setShowUnlockAnimation] = useState<{
+    id: string;
+    name: string;
+    points: number;
+    badge: string;
+  } | null>(null);
   
-  const { achievements, userProfile } = useGamification();
+  const { gameStats } = useGamification();
+  const achievements = gameStats?.achievements;
+  const userProfile = gameStats?.profile;
 
   // Mock data for demonstration
   const mockAchievements = [
@@ -449,6 +468,7 @@ export function AchievementShowcase() {
       <AnimatePresence>
         {showUnlockAnimation && (
           <AchievementUnlock
+            key="achievement-showcase-unlock"
             achievementName={showUnlockAnimation.name}
             points={showUnlockAnimation.points}
             badge={showUnlockAnimation.badge}

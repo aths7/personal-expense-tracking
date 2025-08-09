@@ -66,9 +66,10 @@ export function FestivalBanner({ event, onChallengeClick, onViewRewards }: Festi
     if (!activeParticles) return null;
 
     const particleCount = 20;
+    const timestamp = Date.now();
     const particles = Array.from({ length: particleCount }, (_, i) => (
       <motion.div
-        key={i}
+        key={`festival-particle-${timestamp}-${i}`}
         className={`absolute w-2 h-2 rounded-full ${
           event.theme === 'diwali' ? 'bg-yellow-400' :
           event.theme === 'holi' ? 'bg-pink-400' :

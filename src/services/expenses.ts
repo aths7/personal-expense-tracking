@@ -18,9 +18,9 @@ export const expensesService: ExpensesService = {
   getExpenses: async (filters: FilterOptions = {}) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
-      return { data: null, error: 'User not authenticated' };
+      return { data: null, error: new Error('User not authenticated') };
     }
 
     let query = supabase
@@ -58,15 +58,19 @@ export const expensesService: ExpensesService = {
 
     const { data, error } = await query.order('date', { ascending: false });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as ExpenseWithCategory[], error: null };
   },
 
   getExpenseById: async (id: string) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
-      return { data: null, error: 'User not authenticated' };
+      return { data: null, error: new Error('User not authenticated') };
     }
 
     const { data, error } = await supabase
@@ -79,46 +83,58 @@ export const expensesService: ExpensesService = {
       .eq('user_id', user.id)
       .single();
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as ExpenseWithCategory, error: null };
   },
 
   createExpense: async (formData: ExpenseFormData) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
-      return { data: null, error: 'User not authenticated' };
+      return { data: null, error: new Error('User not authenticated') };
     }
 
     const { data, error } = await supabase
       .from('expenses')
-      .insert([
-        {
-          ...formData,
-          user_id: user.id,
-        },
-      ])
+      .insert([{
+        user_id: user.id,
+        category_id: formData.category_id,
+        amount: formData.amount,
+        description: formData.description,
+        date: formData.date,
+      }])
       .select(`
         *,
         category:categories(*)
       `)
       .single();
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as ExpenseWithCategory, error: null };
   },
 
   updateExpense: async (id: string, formData: Partial<ExpenseFormData>) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
-      return { data: null, error: 'User not authenticated' };
+      return { data: null, error: new Error('User not authenticated') };
     }
 
     const { data, error } = await supabase
       .from('expenses')
       .update({
-        ...formData,
+        category_id: formData.category_id,
+        amount: formData.amount,
+        description: formData.description,
+        date: formData.date,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -129,15 +145,19 @@ export const expensesService: ExpensesService = {
       `)
       .single();
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as ExpenseWithCategory, error: null };
   },
 
   deleteExpense: async (id: string) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
-      return { error: 'User not authenticated' };
+      return { error: new Error('User not authenticated') };
     }
 
     const { error } = await supabase
@@ -146,18 +166,21 @@ export const expensesService: ExpensesService = {
       .eq('id', id)
       .eq('user_id', user.id);
 
-    return { error };
+    if (error) {
+      return { error: new Error(error.message) };
+    }
+
+    return { error: null };
   },
 
   getExpenseStats: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
-      return { data: null, error: 'User not authenticated' };
+      return { data: null, error: new Error('User not authenticated') };
     }
 
-    // Get total expenses, current month, and category breakdown
     const { data, error } = await supabase
       .from('expenses')
       .select(`
@@ -165,8 +188,13 @@ export const expensesService: ExpensesService = {
         date,
         category:categories(name, color)
       `)
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .order('date', { ascending: false });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as ExpenseWithCategory[], error: null };
   },
 };

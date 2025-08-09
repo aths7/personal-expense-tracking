@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,7 @@ import {
   Trophy, 
   Gift,
   Star,
-  Clock,
   TrendingUp,
-  Users,
   Zap,
   X
 } from 'lucide-react';
@@ -22,12 +20,12 @@ import { FestivalBanner } from './festival-banner';
 import { SeasonalChallenges } from './seasonal-challenges';
 import { SeasonalRewards } from './seasonal-rewards';
 import { useSeasonalEvents } from '@/hooks/useSeasonalEvents';
-import { formatCurrency } from '@/lib/currency';
+// formatCurrency removed - not used in current implementation
 
 interface SeasonalDashboardProps {
   isOpen: boolean;
   onClose: () => void;
-  onExpenseAdded?: (expense: any) => void;
+  onExpenseAdded?: (expense: Record<string, unknown>) => void;
 }
 
 export function SeasonalDashboard({ isOpen, onClose, onExpenseAdded }: SeasonalDashboardProps) {
@@ -284,21 +282,21 @@ export function SeasonalDashboard({ isOpen, onClose, onExpenseAdded }: SeasonalD
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-2">
                                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                <span className="text-sm">Completed "Smart Diwali Spending" challenge</span>
+                                <span className="text-sm">Completed &ldquo;Smart Diwali Spending&rdquo; challenge</span>
                               </div>
                               <Badge variant="outline" className="text-xs">+200 pts</Badge>
                             </div>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-2">
                                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                <span className="text-sm">Claimed "Diwali Light Keeper" badge</span>
+                                <span className="text-sm">Claimed &ldquo;Diwali Light Keeper&rdquo; badge</span>
                               </div>
                               <Badge variant="outline" className="text-xs">-100 pts</Badge>
                             </div>
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-2">
                                 <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                                <span className="text-sm">Started "Festival Essentials Only" challenge</span>
+                                <span className="text-sm">Started &ldquo;Festival Essentials Only&rdquo; challenge</span>
                               </div>
                               <Badge variant="outline" className="text-xs">New</Badge>
                             </div>

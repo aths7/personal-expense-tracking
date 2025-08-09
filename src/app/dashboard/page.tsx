@@ -63,7 +63,7 @@ function StatCard({
 
 export default function DashboardPage() {
   const { stats, loading: statsLoading } = useDashboard();
-  const { expenses, loading: expensesLoading, checkAchievements } = useExpenses({});
+  const { expenses, loading: expensesLoading } = useExpenses({});
   const { gameStats, loading: gameLoading } = useGamification();
 
   const recentExpenses = useMemo(() => {

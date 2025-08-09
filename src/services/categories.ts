@@ -1,18 +1,19 @@
 import { createClient } from '@/lib/supabase/client';
 import type { Category, CategoryFormData } from '@/types';
+import type { PostgrestError } from '@supabase/supabase-js';
 
 export interface CategoriesService {
-  getCategories: () => Promise<{ data: Category[] | null; error: Error | null }>;
-  createCategory: (data: CategoryFormData) => Promise<{ data: Category | null; error: Error | null }>;
-  updateCategory: (id: string, data: Partial<CategoryFormData>) => Promise<{ data: Category | null; error: Error | null }>;
-  deleteCategory: (id: string) => Promise<{ error: Error | null }>;
+  getCategories: () => Promise<{ data: Category[] | null; error: PostgrestError | string | null }>;
+  createCategory: (d: CategoryFormData) => Promise<{ data: Category | null; error: PostgrestError | string | null }>;
+  updateCategory: (id: string, d: Partial<CategoryFormData>) => Promise<{ data: Category | null; error: PostgrestError | string | null }>;
+  deleteCategory: (id: string) => Promise<{ error: PostgrestError | string | null }>;
 }
 
 export const categoriesService: CategoriesService = {
   getCategories: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: 'User not authenticated' };
     }
@@ -29,7 +30,7 @@ export const categoriesService: CategoriesService = {
   createCategory: async (formData: CategoryFormData) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: 'User not authenticated' };
     }
@@ -52,7 +53,7 @@ export const categoriesService: CategoriesService = {
   updateCategory: async (id: string, formData: Partial<CategoryFormData>) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: 'User not authenticated' };
     }
@@ -74,7 +75,7 @@ export const categoriesService: CategoriesService = {
   deleteCategory: async (id: string) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { error: 'User not authenticated' };
     }

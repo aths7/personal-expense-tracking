@@ -28,7 +28,18 @@ import { expensePredictionService } from '@/services/expense-prediction';
 import { formatCurrency } from '@/lib/currency';
 
 interface PredictionCardProps {
-  prediction: any;
+  prediction: {
+    amount: number;
+    confidence: number;
+    category: string;
+    reasoning: string;
+    historicalBasis: {
+      averageAmount: number;
+      frequency: number;
+      lastAmount: number;
+      trend: string;
+    };
+  };
   onAccept?: () => void;
   onDismiss?: () => void;
 }
@@ -114,7 +125,7 @@ function PredictionCard({ prediction, onAccept, onDismiss }: PredictionCardProps
   );
 }
 
-function AlertCard({ alert }: { alert: any }) {
+function AlertCard({ alert }: { alert: { type: string; message: string; projectedOverage?: number; confidence: number } }) {
   const getAlertIcon = (type: string) => {
     switch (type) {
       case 'danger': return <AlertTriangle className="w-5 h-5 text-red-500" />;
@@ -142,10 +153,7 @@ function AlertCard({ alert }: { alert: any }) {
           {getAlertIcon(alert.type)}
           <div className="flex-1">
             <div className="font-medium text-gray-900">{alert.message}</div>
-            {alert.category && (
-              <div className="text-sm text-gray-600 mt-1">Category: {alert.category}</div>
-            )}
-            {alert.projectedOverage > 0 && (
+            {alert.projectedOverage && alert.projectedOverage > 0 && (
               <div className="text-sm font-medium text-red-600 mt-1">
                 Overage: {formatCurrency(alert.projectedOverage)}
               </div>
@@ -161,10 +169,10 @@ function AlertCard({ alert }: { alert: any }) {
 }
 
 export function PredictionDashboard() {
-  const [predictions, setPredictions] = useState<any[]>([]);
-  const [alerts, setAlerts] = useState<any[]>([]);
+  const [predictions, setPredictions] = useState<Array<Record<string, unknown>>>([]);
+  const [alerts, setAlerts] = useState<Array<Record<string, unknown>>>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [patterns, setPatterns] = useState<any[]>([]);
+  const [patterns, setPatterns] = useState<Array<Record<string, unknown>>>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('predictions');
 
@@ -297,7 +305,7 @@ export function PredictionDashboard() {
       {alerts.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {alerts.map((alert, index) => (
-            <AlertCard key={index} alert={alert} />
+            <AlertCard key={index} alert={alert as { type: string; message: string; projectedOverage?: number; confidence: number }} />
           ))}
         </div>
       )}
@@ -325,13 +333,13 @@ export function PredictionDashboard() {
                   {predictions.slice(0, 3).map((prediction, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <div>
-                        <div className="font-medium">{prediction.category}</div>
+                        <div className="font-medium">{String(prediction.category)}</div>
                         <div className="text-sm text-gray-500">
-                          {Math.round(prediction.confidence * 100)}% confidence
+                          {Math.round(Number(prediction.confidence) * 100)}% confidence
                         </div>
                       </div>
                       <div className="text-lg font-semibold text-blue-600">
-                        {formatCurrency(prediction.amount)}
+                        {formatCurrency(Number(prediction.amount))}
                       </div>
                     </div>
                   ))}
@@ -340,7 +348,7 @@ export function PredictionDashboard() {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Total Predicted:</span>
                     <span className="font-semibold">
-                      {formatCurrency(predictions.reduce((sum, p) => sum + p.amount, 0))}
+                      {formatCurrency(predictions.reduce((sum, p) => sum + Number(p.amount), 0))}
                     </span>
                   </div>
                 </div>
@@ -359,26 +367,26 @@ export function PredictionDashboard() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm">High Confidence</span>
                     <span className="text-green-600 font-medium">
-                      {predictions.filter(p => p.confidence >= 0.8).length}
+                      {predictions.filter(p => Number(p.confidence) >= 0.8).length}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Medium Confidence</span>
                     <span className="text-yellow-600 font-medium">
-                      {predictions.filter(p => p.confidence >= 0.6 && p.confidence < 0.8).length}
+                      {predictions.filter(p => Number(p.confidence) >= 0.6 && Number(p.confidence) < 0.8).length}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Low Confidence</span>
                     <span className="text-red-600 font-medium">
-                      {predictions.filter(p => p.confidence < 0.6).length}
+                      {predictions.filter(p => Number(p.confidence) < 0.6).length}
                     </span>
                   </div>
                 </div>
                 <div className="mt-4">
                   <div className="text-sm text-gray-600 mb-2">Average Confidence</div>
                   <Progress 
-                    value={(predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length) * 100} 
+                    value={(predictions.reduce((sum, p) => sum + Number(p.confidence), 0) / predictions.length) * 100} 
                     className="h-2"
                   />
                 </div>
@@ -390,7 +398,7 @@ export function PredictionDashboard() {
             {predictions.map((prediction, index) => (
               <PredictionCard
                 key={index}
-                prediction={prediction}
+                prediction={prediction as { amount: number; confidence: number; category: string; reasoning: string; historicalBasis: { averageAmount: number; frequency: number; lastAmount: number; trend: string; }; }}
                 onAccept={() => console.log('Track prediction:', prediction)}
                 onDismiss={() => setPredictions(prev => prev.filter((_, i) => i !== index))}
               />
@@ -404,12 +412,12 @@ export function PredictionDashboard() {
               <AnimatedCard key={index}>
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span>{pattern.categoryName}</span>
+                    <span>{String(pattern.categoryName)}</span>
                     <Badge variant={
                       pattern.trend === 'increasing' ? 'destructive' :
                       pattern.trend === 'decreasing' ? 'default' : 'secondary'
                     }>
-                      {pattern.trend}
+                      {String(pattern.trend)}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
@@ -418,11 +426,11 @@ export function PredictionDashboard() {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <div className="text-gray-500">Average Amount</div>
-                        <div className="font-semibold">{formatCurrency(pattern.averageAmount)}</div>
+                        <div className="font-semibold">{formatCurrency(Number(pattern.averageAmount))}</div>
                       </div>
                       <div>
                         <div className="text-gray-500">Frequency</div>
-                        <div className="font-semibold">{pattern.frequency.toFixed(1)}/month</div>
+                        <div className="font-semibold">{Number(pattern.frequency).toFixed(1)}/month</div>
                       </div>
                     </div>
                     
@@ -433,7 +441,7 @@ export function PredictionDashboard() {
                           <div
                             key={dayIndex}
                             className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                              pattern.dayOfWeek.includes(dayIndex)
+                              (pattern.dayOfWeek as number[]).includes(dayIndex)
                                 ? 'bg-blue-500 text-white'
                                 : 'bg-gray-100 text-gray-400'
                             }`}
@@ -447,8 +455,8 @@ export function PredictionDashboard() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-500">Pattern Confidence</span>
                       <div className="flex items-center gap-2">
-                        <Progress value={pattern.confidence * 100} className="w-16 h-2" />
-                        <span className="text-sm font-medium">{Math.round(pattern.confidence * 100)}%</span>
+                        <Progress value={Number(pattern.confidence) * 100} className="w-16 h-2" />
+                        <span className="text-sm font-medium">{Math.round(Number(pattern.confidence) * 100)}%</span>
                       </div>
                     </div>
                   </div>

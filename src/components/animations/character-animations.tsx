@@ -122,7 +122,7 @@ export function AnimatedCharacter({
           <>
             {Array.from({ length: 3 }).map((_, i) => (
               <motion.div
-                key={i}
+                key={`character-sparkle-${Date.now()}-${i}`}
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ 
                   scale: [0, 1, 0],
@@ -290,7 +290,7 @@ export function AchievementUnlock({
         {/* Confetti particles */}
         {Array.from({ length: 10 }).map((_, i) => (
           <motion.div
-            key={i}
+            key={`amount-confetti-${Date.now()}-${i}`}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ 
               scale: [0, 1, 0],
@@ -360,7 +360,7 @@ export function LevelUpAnimation({
         {/* Background particles */}
         {Array.from({ length: 20 }).map((_, i) => (
           <motion.div
-            key={i}
+            key={`background-particle-${Date.now()}-${i}`}
             initial={{ scale: 0, opacity: 0 }}
             animate={{ 
               scale: [0, 1, 0],

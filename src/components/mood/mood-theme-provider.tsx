@@ -8,7 +8,7 @@ import { characterSystemService } from '@/services/character-system';
 interface MoodThemeContextType {
   currentMood: CharacterMood['mood'];
   themeConfig: ThemeConfig;
-  updateMood: (spendingData: any) => void;
+  updateMood: (spendingData: { monthlyBudget: number; currentSpending: number; recentExpense: number | null }) => void;
   backgroundEffects: boolean;
   setBackgroundEffects: (enabled: boolean) => void;
 }
@@ -93,7 +93,7 @@ const MOOD_THEMES: Record<CharacterMood['mood'], ThemeConfig> = {
       surface: '#FEF2F2',
       accent: '#DC2626'
     },
-    mood: 'angry',
+    mood: 'worried', // Map angry to worried for theme consistency
     particles: {
       type: 'rain',
       intensity: 0.4
@@ -108,7 +108,7 @@ const MOOD_THEMES: Record<CharacterMood['mood'], ThemeConfig> = {
       surface: '#EFF6FF',
       accent: '#3B82F6'
     },
-    mood: 'sleepy',
+    mood: 'neutral', // Map sleepy to neutral for theme consistency
     particles: {
       type: 'snow',
       intensity: 0.15
@@ -234,7 +234,7 @@ export function MoodThemeProvider({ children }: MoodThemeProviderProps) {
 
   const themeConfig = MOOD_THEMES[currentMood];
 
-  const updateMood = (spendingData: any) => {
+  const updateMood = (spendingData: { monthlyBudget: number; currentSpending: number; recentExpense: number | null }) => {
     const moodData = characterSystemService.getCharacterMood(spendingData);
     setCurrentMood(moodData.mood);
   };

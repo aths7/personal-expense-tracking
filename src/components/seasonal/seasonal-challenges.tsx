@@ -109,8 +109,8 @@ export function SeasonalChallenges({
               animate={{ opacity: 1, y: 0 }}
               className={`relative ${selectedChallenge === challenge.id ? 'ring-2' : ''}`}
               style={{
-                ringColor: selectedChallenge === challenge.id ? event.theme_colors.primary : 'transparent'
-              }}
+                '--tw-ring-color': selectedChallenge === challenge.id ? event.theme_colors.primary : 'transparent'
+              } as React.CSSProperties}
             >
               <Card 
                 className={`cursor-pointer transition-all hover:shadow-lg ${

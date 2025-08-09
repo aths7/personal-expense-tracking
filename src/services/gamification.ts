@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/client';
-import type { 
-  UserProfile, 
-  Achievement, 
-  UserAchievement, 
-  BudgetGoal, 
+import type {
+  UserProfile,
+  Achievement,
+  UserAchievement,
+  BudgetGoal,
   BudgetGoalFormData,
   Challenge,
   UserChallenge,
@@ -33,7 +33,7 @@ export const gamificationService: GamificationService = {
   getUserProfile: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -44,13 +44,17 @@ export const gamificationService: GamificationService = {
       .eq('user_id', user.id)
       .single();
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as UserProfile, error: null };
   },
 
   createUserProfile: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -67,7 +71,7 @@ export const gamificationService: GamificationService = {
   getUserAchievements: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -81,12 +85,16 @@ export const gamificationService: GamificationService = {
       .eq('user_id', user.id)
       .order('earned_at', { ascending: false });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as UserAchievement[], error: null };
   },
 
   getAvailableAchievements: async () => {
     const supabase = createClient();
-    
+
     const { data, error } = await supabase
       .from('achievements')
       .select('*')
@@ -99,7 +107,7 @@ export const gamificationService: GamificationService = {
   awardAchievement: async (achievementKey: string) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { success: false, points: 0 };
     }
@@ -152,7 +160,7 @@ export const gamificationService: GamificationService = {
   checkAchievements: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) return;
 
     // Get user stats
@@ -206,7 +214,7 @@ export const gamificationService: GamificationService = {
   getBudgetGoals: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -220,13 +228,17 @@ export const gamificationService: GamificationService = {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as BudgetGoal[], error: null };
   },
 
   createBudgetGoal: async (formData: BudgetGoalFormData) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -243,18 +255,22 @@ export const gamificationService: GamificationService = {
       `)
       .single();
 
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
     // Award achievement for setting first budget
     if (data) {
       gamificationService.awardAchievement('budget_setter');
     }
 
-    return { data, error };
+    return { data: data as BudgetGoal, error: null };
   },
 
   updateBudgetGoal: async (id: string, formData: Partial<BudgetGoalFormData>) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -279,7 +295,7 @@ export const gamificationService: GamificationService = {
   deleteBudgetGoal: async (id: string) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { error: new Error('User not authenticated') };
     }
@@ -295,7 +311,7 @@ export const gamificationService: GamificationService = {
 
   getActiveChallenges: async () => {
     const supabase = createClient();
-    
+
     const { data, error } = await supabase
       .from('challenges')
       .select('*')
@@ -303,13 +319,17 @@ export const gamificationService: GamificationService = {
       .gte('end_date', new Date().toISOString().split('T')[0])
       .order('created_at', { ascending: false });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as Challenge[], error: null };
   },
 
   getUserChallenges: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -323,35 +343,39 @@ export const gamificationService: GamificationService = {
       .eq('user_id', user.id)
       .order('joined_at', { ascending: false });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as UserChallenge[], error: null };
   },
 
   joinChallenge: async (challengeId: string) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { success: false };
     }
 
-    try {
-      await supabase
-        .from('user_challenges')
-        .insert([{
-          user_id: user.id,
-          challenge_id: challengeId,
-        }]);
+    const { error } = await supabase
+      .from('user_challenges')
+      .insert([{
+        user_id: user.id,
+        challenge_id: challengeId,
+      }]);
 
-      return { success: true };
-    } catch {
+    if (error) {
       return { success: false };
     }
+
+    return { success: true };
   },
 
   getGameStats: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -370,15 +394,15 @@ export const gamificationService: GamificationService = {
 
       // Get achievements
       const { data: achievements } = await gamificationService.getUserAchievements();
-      
+
       // Get active challenges
       const { data: userChallenges } = await gamificationService.getUserChallenges();
-      
+
       // Get budget goals
       const { data: budgetGoals } = await gamificationService.getBudgetGoals();
 
       // Calculate level info
-      const levelInfo = LEVEL_SYSTEM.find(l => 
+      const levelInfo = LEVEL_SYSTEM.find(l =>
         profile.total_points >= l.minPoints && profile.total_points <= l.maxPoints
       ) || LEVEL_SYSTEM[0];
 

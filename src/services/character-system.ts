@@ -1,13 +1,20 @@
 import { createClient } from '@/lib/supabase/client';
-import type { 
-  Character, 
-  UserCharacter, 
-  CharacterAccessory, 
+import type {
+  Character,
+  UserCharacter,
+  CharacterAccessory,
   UserCharacterAccessory,
   UserPreferences,
   CharacterMood,
   AdvancedGameStats
 } from '@/types/advanced-gamification';
+
+// Utility function to safely cast database results to application types
+const castToCharacter = (data: any): Character => data as Character;
+const castToCharacterAccessory = (data: any): CharacterAccessory => data as CharacterAccessory;
+const castToUserCharacter = (data: any): UserCharacter => data as UserCharacter;
+const castToUserCharacterAccessory = (data: any): UserCharacterAccessory => data as UserCharacterAccessory;
+const castToUserPreferences = (data: any): UserPreferences => data as UserPreferences;
 
 export interface CharacterSystemService {
   getAvailableCharacters: () => Promise<{ data: Character[] | null; error: Error | null }>;
@@ -20,27 +27,31 @@ export interface CharacterSystemService {
   equipAccessory: (accessoryId: string) => Promise<{ success: boolean; error?: Error }>;
   getUserPreferences: () => Promise<{ data: UserPreferences | null; error: Error | null }>;
   updateUserPreferences: (preferences: Partial<UserPreferences>) => Promise<{ success: boolean; error?: Error }>;
-  getCharacterMood: (spendingData: any) => CharacterMood;
+  getCharacterMood: (spendingData: { monthlyBudget: number; currentSpending: number; recentExpense: number | null }) => CharacterMood;
   getAdvancedGameStats: () => Promise<{ data: AdvancedGameStats | null; error: Error | null }>;
 }
 
 export const characterSystemService: CharacterSystemService = {
   getAvailableCharacters: async () => {
     const supabase = createClient();
-    
+
     const { data, error } = await supabase
       .from('characters')
       .select('*')
       .eq('is_active', true)
       .order('unlock_points', { ascending: true });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as Character[], error: null };
   },
 
   getUserCharacters: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -54,13 +65,17 @@ export const characterSystemService: CharacterSystemService = {
       .eq('user_id', user.id)
       .order('unlocked_at', { ascending: false });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as UserCharacter[], error: null };
   },
 
   unlockCharacter: async (characterId: string) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { success: false, error: new Error('User not authenticated') };
     }
@@ -83,7 +98,7 @@ export const characterSystemService: CharacterSystemService = {
   setActiveCharacter: async (characterId: string) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { success: false, error: new Error('User not authenticated') };
     }
@@ -111,20 +126,24 @@ export const characterSystemService: CharacterSystemService = {
 
   getAvailableAccessories: async () => {
     const supabase = createClient();
-    
+
     const { data, error } = await supabase
       .from('character_accessories')
       .select('*')
       .eq('is_active', true)
       .order('unlock_points', { ascending: true });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as CharacterAccessory[], error: null };
   },
 
   getUserAccessories: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -138,13 +157,17 @@ export const characterSystemService: CharacterSystemService = {
       .eq('user_id', user.id)
       .order('unlocked_at', { ascending: false });
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as UserCharacterAccessory[], error: null };
   },
 
   unlockAccessory: async (accessoryId: string) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { success: false, error: new Error('User not authenticated') };
     }
@@ -167,7 +190,7 @@ export const characterSystemService: CharacterSystemService = {
   equipAccessory: async (accessoryId: string) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { success: false, error: new Error('User not authenticated') };
     }
@@ -181,17 +204,22 @@ export const characterSystemService: CharacterSystemService = {
         .single();
 
       if (accessory) {
-        // Unequip other accessories of the same type
-        await supabase
-          .from('user_character_accessories')
-          .update({ is_equipped: false })
-          .eq('user_id', user.id)
-          .in('accessory_id', 
-            supabase
-              .from('character_accessories')
-              .select('id')
-              .eq('type', accessory.type)
-          );
+        // Get all accessory IDs of the same type
+        const { data: sameTypeAccessories } = await supabase
+          .from('character_accessories')
+          .select('id')
+          .eq('type', accessory.type);
+
+        if (sameTypeAccessories && sameTypeAccessories.length > 0) {
+          const accessoryIds = sameTypeAccessories.map(acc => acc.id);
+
+          // Unequip other accessories of the same type
+          await supabase
+            .from('user_character_accessories')
+            .update({ is_equipped: false })
+            .eq('user_id', user.id)
+            .in('accessory_id', accessoryIds);
+        }
       }
 
       // Equip the selected accessory
@@ -202,6 +230,7 @@ export const characterSystemService: CharacterSystemService = {
         .eq('accessory_id', accessoryId);
 
       if (error) throw error;
+
       return { success: true };
     } catch (error) {
       return { success: false, error: error as Error };
@@ -211,7 +240,7 @@ export const characterSystemService: CharacterSystemService = {
   getUserPreferences: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -222,13 +251,17 @@ export const characterSystemService: CharacterSystemService = {
       .eq('user_id', user.id)
       .single();
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: castToUserPreferences(data), error: null };
   },
 
   updateUserPreferences: async (preferences: Partial<UserPreferences>) => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { success: false, error: new Error('User not authenticated') };
     }
@@ -249,12 +282,12 @@ export const characterSystemService: CharacterSystemService = {
     }
   },
 
-  getCharacterMood: (spendingData: any): CharacterMood => {
-    const { monthlyBudget, currentSpending, recentExpense } = spendingData;
-    
+  getCharacterMood: (spendingData: { monthlyBudget: number; currentSpending: number; recentExpense: number | null }): CharacterMood => {
+    const { monthlyBudget, currentSpending } = spendingData;
+
     // Calculate spending ratio
     const spendingRatio = monthlyBudget > 0 ? currentSpending / monthlyBudget : 0;
-    
+
     // Determine mood based on spending patterns
     if (spendingRatio < 0.5) {
       return {
@@ -294,7 +327,7 @@ export const characterSystemService: CharacterSystemService = {
   getAdvancedGameStats: async () => {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (!user) {
       return { data: null, error: new Error('User not authenticated') };
     }
@@ -315,13 +348,30 @@ export const characterSystemService: CharacterSystemService = {
 
       const currentCharacter = userCharactersResult.data?.find(uc => uc.is_active) || null;
       const equippedAccessories = userAccessoriesResult.data?.filter(ua => ua.is_equipped) || [];
-      
+
       // Get current mood based on recent spending
       const currentMood = characterSystemService.getCharacterMood({
         monthlyBudget: 50000, // This would come from actual budget data
         currentSpending: 37500,
         recentExpense: null
       });
+
+      // Map character mood to the limited mood range expected by AdvancedGameStats
+      const mapToAdvancedStatsMood = (mood: CharacterMood['mood']): 'happy' | 'neutral' | 'worried' | 'excited' => {
+        switch (mood) {
+          case 'happy':
+          case 'excited':
+          case 'neutral':
+          case 'worried':
+            return mood;
+          case 'angry':
+            return 'worried'; // Map angry to worried for advanced stats
+          case 'sleepy':
+            return 'neutral'; // Map sleepy to neutral for advanced stats
+          default:
+            return 'neutral';
+        }
+      };
 
       // Generate theme colors based on mood
       const themeColors = {
@@ -331,6 +381,8 @@ export const characterSystemService: CharacterSystemService = {
         excited: { primary: '#8B5CF6', background: '#FAF5FF', accent: '#A78BFA' },
         angry: { primary: '#EF4444', background: '#FEF2F2', accent: '#F87171' }
       };
+
+      const mappedMood = mapToAdvancedStatsMood(currentMood.mood);
 
       const advancedStats: AdvancedGameStats = {
         currentCharacter,
@@ -351,9 +403,9 @@ export const characterSystemService: CharacterSystemService = {
         },
         activeEvents: [], // Would be populated from seasonal events
         miniGameScores: [], // Would be populated from mini-game data
-        currentMood: currentMood.mood,
+        currentMood: mappedMood,
         characterReaction: currentMood.expression,
-        themeColors: themeColors[currentMood.mood]
+        themeColors: themeColors[mappedMood]
       };
 
       return { data: advancedStats, error: null };
@@ -365,7 +417,15 @@ export const characterSystemService: CharacterSystemService = {
 
 // Utility functions for character system
 export const CharacterUtils = {
-  checkUnlockConditions: (condition: string, userStats: any): boolean => {
+  checkUnlockConditions: (condition: string, userStats: {
+    totalExpenses: number;
+    longestStreak: number;
+    level: number;
+    budgetGoalsCreated: number;
+    budgetGoalsAchieved: number;
+    categoriesUsed: number;
+    maxSingleExpense: number;
+  }): boolean => {
     switch (condition) {
       case 'default':
         return true;

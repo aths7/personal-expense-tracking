@@ -25,7 +25,9 @@ export function CharacterSelection({ onCharacterSelect, showAccessories = true }
   const [showUnlockAnimation, setShowUnlockAnimation] = useState<{ character?: Character; accessory?: CharacterAccessory } | null>(null);
   const [loading, setLoading] = useState(true);
   
-  const { userProfile, stats } = useGamification();
+  const { gameStats } = useGamification();
+  const userProfile = gameStats?.profile;
+  const stats = gameStats;
 
   useEffect(() => {
     loadCharacterData();
@@ -70,12 +72,12 @@ export function CharacterSelection({ onCharacterSelect, showAccessories = true }
   const canUnlockCharacter = (character: Character) => {
     if (!stats) return false;
     return CharacterUtils.checkUnlockConditions(character.unlock_condition, {
-      totalExpenses: stats.totalExpenses,
-      longestStreak: stats.currentStreak,
-      level: stats.level,
-      budgetGoalsCreated: 1, // This would come from actual budget data
-      budgetGoalsAchieved: 0,
-      categoriesUsed: stats.totalCategories || 0,
+      totalExpenses: stats.profile?.total_expenses_tracked || 0,
+      longestStreak: stats.profile?.longest_streak || 0,
+      level: stats.profile?.level || 1,
+      budgetGoalsCreated: stats.budgetGoals?.length || 0,
+      budgetGoalsAchieved: 0, // This would need to be calculated from budget goals
+      categoriesUsed: 0, // This would come from expense data
       maxSingleExpense: 0 // This would come from expense data
     });
   };
@@ -263,7 +265,11 @@ export function CharacterSelection({ onCharacterSelect, showAccessories = true }
                           : 'border-gray-100 bg-gray-50 opacity-60'
                     }`}
                   >
-                    <div className="text-2xl mb-1">{accessory.icon || '🎨'}</div>
+                    <div className="text-2xl mb-1">
+                      {accessory.type === 'hat' ? '🎩' :
+                       accessory.type === 'color' ? '🎨' :
+                       accessory.type === 'background' ? '🌟' : '🎀'}
+                    </div>
                     <div className="text-xs font-medium">{accessory.name}</div>
                     {getRarityBadge(accessory.rarity)}
                     
@@ -294,7 +300,7 @@ export function CharacterSelection({ onCharacterSelect, showAccessories = true }
                   mood: 'happy',
                   expression: '😊',
                   animation: 'bounce',
-                  trigger: 'selection',
+                  trigger: 'idle',
                   duration: 3000
                 }}
                 size="large"
@@ -309,6 +315,7 @@ export function CharacterSelection({ onCharacterSelect, showAccessories = true }
       <AnimatePresence>
         {showUnlockAnimation?.character && (
           <AchievementUnlock
+            key="character-selection-unlock"
             achievementName={`${showUnlockAnimation.character.name} Unlocked!`}
             points={showUnlockAnimation.character.unlock_points}
             badge="🎉"

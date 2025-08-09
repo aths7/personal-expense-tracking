@@ -18,7 +18,7 @@ export function MoneyRain({
   intensity = 'normal',
   onComplete 
 }: MoneyRainProps) {
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; delay: number; icon: 'dollar' | 'coin' }>>([]);
+  const [particles, setParticles] = useState<Array<{ id: string; x: number; delay: number; icon: 'dollar' | 'coin' }>>([]);
 
   const getParticleCount = () => {
     switch (intensity) {
@@ -31,8 +31,9 @@ export function MoneyRain({
   useEffect(() => {
     if (isActive) {
       const particleCount = getParticleCount();
+      const timestamp = Date.now();
       const newParticles = Array.from({ length: particleCount }, (_, i) => ({
-        id: i,
+        id: `${timestamp}-${i}`, // Ensure unique IDs across all instances
         x: Math.random() * 100,
         delay: Math.random() * 2,
         icon: Math.random() > 0.7 ? 'coin' : 'dollar' as 'dollar' | 'coin',
@@ -46,18 +47,20 @@ export function MoneyRain({
       }, duration);
 
       return () => clearTimeout(timer);
+    } else {
+      setParticles([]);
     }
   }, [isActive, duration, intensity, onComplete]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-50">
       <AnimatePresence>
-        {isActive && particles.map((particle) => {
+        {isActive && particles.map((particle, index) => {
           const IconComponent = particle.icon === 'dollar' ? DollarSign : Coins;
           
           return (
             <motion.div
-              key={particle.id}
+              key={particle.id || `fallback-${index}`}
               initial={{ 
                 x: `${particle.x}vw`, 
                 y: '-10vh',

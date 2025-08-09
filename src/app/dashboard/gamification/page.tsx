@@ -42,7 +42,10 @@ export default function GamificationPage() {
   }>({});
   const [activeCharacter, setActiveCharacter] = useState<Character | null>(null);
 
-  const { userProfile, achievements, stats, error, loading } = useGamification();
+  const { gameStats, error, loading } = useGamification();
+  const userProfile = gameStats?.profile;
+  const achievements = gameStats?.achievements;
+  const stats = gameStats;
   const { currentMood, updateMood, setBackgroundEffects, backgroundEffects } = useMoodTheme();
 
   useEffect(() => {
@@ -71,7 +74,7 @@ export default function GamificationPage() {
     }
   };
 
-  const handleGameComplete = (result: any) => {
+  const handleGameComplete = (result: { pointsEarned: number }) => {
     // Show coin flip animation
     setShowAnimations(prev => ({ ...prev, coinFlip: { amount: result.pointsEarned } }));
     
@@ -80,7 +83,7 @@ export default function GamificationPage() {
       setTimeout(() => {
         setShowAnimations(prev => ({ 
           ...prev, 
-          levelUp: { level: (stats?.level || 1) + 1, name: 'Game Master' }
+          levelUp: { level: (stats?.levelInfo?.level || 1) + 1, name: 'Game Master' }
         }));
       }, 2000);
     }
@@ -198,7 +201,7 @@ export default function GamificationPage() {
                     mood: currentMood,
                     expression: '😊',
                     animation: 'bounce',
-                    trigger: 'display',
+                    trigger: 'idle',
                     duration: 3000
                   }}
                   size="large"
@@ -238,11 +241,11 @@ export default function GamificationPage() {
                 <div className="space-y-3">
                   {achievements?.slice(0, 3).map((achievement) => (
                     <div key={achievement.id} className="flex items-center space-x-3">
-                      <div className="text-2xl">{achievement.badge || '🏆'}</div>
+                      <div className="text-2xl">{achievement.achievement?.icon || '🏆'}</div>
                       <div>
-                        <div className="font-medium">{achievement.name}</div>
+                        <div className="font-medium">{achievement.achievement?.name}</div>
                         <div className="text-sm text-muted-foreground">
-                          +{achievement.points} points
+                          +{achievement.points_earned} points
                         </div>
                       </div>
                     </div>
@@ -302,7 +305,7 @@ export default function GamificationPage() {
         <TabsContent value="games" className="space-y-6">
           {selectedGame ? (
             <MiniGames
-              gameType={selectedGame as any}
+              gameType={selectedGame as 'budget-blast' | 'expense-match' | 'savings-sprint' | 'math-master'}
               onGameComplete={handleGameComplete}
               onGameClose={() => setSelectedGame(null)}
             />
@@ -328,12 +331,12 @@ export default function GamificationPage() {
                     className="p-4 border rounded-lg bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200"
                   >
                     <div className="text-center">
-                      <div className="text-3xl mb-2">{achievement.badge || '🏆'}</div>
-                      <div className="font-semibold">{achievement.name}</div>
+                      <div className="text-3xl mb-2">{achievement.achievement?.icon || '🏆'}</div>
+                      <div className="font-semibold">{achievement.achievement?.name}</div>
                       <div className="text-sm text-muted-foreground mb-2">
-                        {achievement.description}
+                        {achievement.achievement?.description}
                       </div>
-                      <Badge className="bg-yellow-500">+{achievement.points} points</Badge>
+                      <Badge className="bg-yellow-500">+{achievement.points_earned} points</Badge>
                     </div>
                   </motion.div>
                 )) || (
@@ -375,6 +378,7 @@ export default function GamificationPage() {
       <AnimatePresence>
         {showAnimations.coinFlip && (
           <CoinFlip
+            key="gamification-coin-flip"
             isActive={true}
             amount={showAnimations.coinFlip.amount}
             onComplete={() => setShowAnimations(prev => ({ ...prev, coinFlip: undefined }))}
@@ -385,6 +389,7 @@ export default function GamificationPage() {
       <AnimatePresence>
         {showAnimations.levelUp && (
           <LevelUpAnimation
+            key="gamification-level-up"
             newLevel={showAnimations.levelUp.level}
             levelName={showAnimations.levelUp.name}
             onComplete={() => setShowAnimations(prev => ({ ...prev, levelUp: undefined }))}
@@ -395,6 +400,7 @@ export default function GamificationPage() {
       <AnimatePresence>
         {showAnimations.achievement && (
           <AchievementUnlock
+            key="gamification-achievement"
             achievementName={showAnimations.achievement.name}
             points={showAnimations.achievement.points}
             badge={showAnimations.achievement.badge}

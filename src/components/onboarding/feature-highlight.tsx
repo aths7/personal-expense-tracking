@@ -213,13 +213,13 @@ export function MoodIndicatorHighlight() {
 export function FeatureHighlights() {
   return (
     <AnimatePresence>
-      <AddExpenseHighlight />
-      <GamificationHubHighlight />
-      <AchievementsHighlight />
-      <CharacterHighlight />
-      <MiniGamesHighlight />
-      <InsightsHighlight />
-      <MoodIndicatorHighlight />
+      <AddExpenseHighlight key="add-expense-highlight" />
+      <GamificationHubHighlight key="gamification-hub-highlight" />
+      <AchievementsHighlight key="achievements-highlight" />
+      <CharacterHighlight key="character-highlight" />
+      <MiniGamesHighlight key="mini-games-highlight" />
+      <InsightsHighlight key="insights-highlight" />
+      <MoodIndicatorHighlight key="mood-indicator-highlight" />
     </AnimatePresence>
   );
 }

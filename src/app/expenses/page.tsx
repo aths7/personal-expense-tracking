@@ -88,7 +88,18 @@ export default function ExpensesPage() {
     if (value === 'all' || !value) {
       delete newFilters[key];
     } else {
-      newFilters[key] = value;
+      // Handle different property types
+      if (key === 'min_amount' || key === 'max_amount') {
+        const numValue = Number(value);
+        if (!isNaN(numValue)) {
+          newFilters[key] = numValue;
+        }
+      } else {
+        // For string properties
+        if (key === 'category_id' || key === 'date_from' || key === 'date_to' || key === 'search') {
+          newFilters[key] = value;
+        }
+      }
     }
     setFilters(newFilters);
     updateFilters(newFilters);

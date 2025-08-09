@@ -74,7 +74,7 @@ function SavingsSprintGame({ onGameComplete, onGameClose }: SavingsSprintGamePro
     }, newOpportunity.timeLimit * 1000);
   }, [timeLeft]);
 
-  const handleOpportunityClick = (opportunity: any) => {
+  const handleOpportunityClick = (opportunity: { amount: number; type: string; id: number }) => {
     setCurrentSavings(prev => prev + opportunity.amount);
     setScore(prev => prev + opportunity.amount);
     setOpportunities(prev => prev.filter(o => o.id !== opportunity.id));

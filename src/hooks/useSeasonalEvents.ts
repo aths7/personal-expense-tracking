@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { seasonalEventsService } from '@/services/seasonal-events';
-import type { SeasonalEvent, SeasonalChallenge, SeasonalReward, UserSeasonalProgress } from '@/services/seasonal-events';
+import type { SeasonalEvent, SeasonalReward, UserSeasonalProgress } from '@/services/seasonal-events';
 import { toast } from 'sonner';
 
 export const useSeasonalEvents = () => {
@@ -34,7 +34,8 @@ export const useSeasonalEvents = () => {
           setClaimedRewards(progress.rewards_unlocked);
         }
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to load seasonal events:', error);
       const errorMessage = 'Failed to load seasonal events';
       setError(errorMessage);
       toast.error(errorMessage);
@@ -43,14 +44,15 @@ export const useSeasonalEvents = () => {
     }
   }, []);
 
-  const acceptChallenge = async (challengeId: string) => {
+  const acceptChallenge = async (_challengeId: string) => {
     try {
       // In a real app, this would update the database
-      toast.success('Challenge accepted!', 'Track your progress in the challenges tab.');
+      toast.success('Challenge accepted! Track your progress in the challenges tab.');
       return { success: true };
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to accept challenge:', error);
       toast.error('Failed to accept challenge');
-      return { success: false, error: err };
+      return { success: false, error };
     }
   };
 
@@ -77,8 +79,7 @@ export const useSeasonalEvents = () => {
         }
         
         toast.success(
-          'Challenge Complete!', 
-          `You earned ${result.reward.value} points for completing this challenge!`
+          `Challenge Complete! You earned ${result.reward.value} points for completing this challenge!`
         );
         
         return { success: true, reward: result.reward };
@@ -86,9 +87,10 @@ export const useSeasonalEvents = () => {
         toast.error('Failed to complete challenge');
         return { success: false };
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to complete challenge:', error);
       toast.error('Failed to complete challenge');
-      return { success: false, error: err };
+      return { success: false, error };
     }
   };
 
@@ -161,7 +163,7 @@ export const useSeasonalEvents = () => {
       }
 
       if (userPoints < reward.value) {
-        toast.error('Not enough points', `You need ${reward.value - userPoints} more points to claim this reward.`);
+        toast.error(`Not enough points! You need ${reward.value - userPoints} more points to claim this reward.`);
         return { success: false };
       }
 
@@ -184,14 +186,14 @@ export const useSeasonalEvents = () => {
       }
 
       toast.success(
-        'Reward Claimed!', 
-        `You've successfully claimed ${reward.name}!`
+        `Reward Claimed! You've successfully claimed ${reward.name}!`
       );
       
       return { success: true, reward };
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to claim reward:', error);
       toast.error('Failed to claim reward');
-      return { success: false, error: err };
+      return { success: false, error };
     }
   };
 
@@ -216,11 +218,11 @@ export const useSeasonalEvents = () => {
     // Check if challenge is completed
     const challenge = updatedChallenges.find(c => c.id === challengeId);
     if (challenge && progress >= challenge.target_value && !challenge.is_completed) {
-      toast.success('Challenge Progress!', `You're making great progress on ${challenge.title}!`);
+      toast.success(`Challenge Progress! You're making great progress on ${challenge.title}!`);
     }
   };
 
-  const checkAchievements = async (expenses: any[]) => {
+  const checkAchievements = async (expenses: Array<{ date: string; amount: number; }>) => {
     try {
       const achievements = await seasonalEventsService.checkSeasonalAchievements(expenses);
       
@@ -230,14 +232,13 @@ export const useSeasonalEvents = () => {
         setUserPoints(prev => prev + bonusPoints);
         
         toast.success(
-          'Achievements Unlocked!',
-          `You earned ${achievements.length} seasonal achievements and ${bonusPoints} bonus points!`
+          `Achievements Unlocked! You earned ${achievements.length} seasonal achievements and ${bonusPoints} bonus points!`
         );
       }
       
       return achievements;
-    } catch (err) {
-      console.error('Failed to check seasonal achievements:', err);
+    } catch (error) {
+      console.error('Failed to check seasonal achievements:', error);
       return [];
     }
   };

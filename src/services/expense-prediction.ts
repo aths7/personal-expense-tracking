@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-import type { Expense, Category } from '@/types';
+// Remove unused imports - types will be inferred from usage
 
 interface PredictionResult {
   amount: number;
@@ -22,6 +22,7 @@ interface SpendingPattern {
   dayOfWeek: number[];
   timeOfMonth: 'early' | 'mid' | 'late';
   seasonality: Record<string, number>; // month -> multiplier
+  trend: 'increasing' | 'decreasing' | 'stable';
 }
 
 interface BudgetAlert {
@@ -69,10 +70,10 @@ export class ExpensePredictionService {
     const predictions: PredictionResult[] = [];
 
     const currentDate = new Date();
-    
+
     for (const pattern of patterns) {
       const probability = this.calculateExpenseProbability(pattern, days);
-      
+
       if (probability > 0.3) { // Only predict if >30% likely
         const prediction = this.generatePrediction(pattern, probability, currentDate);
         predictions.push(prediction);
@@ -113,7 +114,7 @@ export class ExpensePredictionService {
       if (projectedTotal > monthlyBudget) {
         alerts.push({
           type: 'danger',
-          message: `Projected to exceed monthly budget by ₹${(projectedTotal - monthlyBudget).toLocaleString('en-IN')}`,"
+          message: `Projected to exceed monthly budget by ₹${(projectedTotal - monthlyBudget).toLocaleString('en-IN')}`,
           projectedOverage: projectedTotal - monthlyBudget,
           confidence: 0.8
         });
@@ -144,7 +145,7 @@ export class ExpensePredictionService {
         if (projectedCategoryTotal > budget) {
           alerts.push({
             type: 'warning',
-            message: `${category} spending may exceed budget by ₹${(projectedCategoryTotal - budget).toLocaleString('en-IN')}`,"
+            message: `${category} spending may exceed budget by ₹${(projectedCategoryTotal - budget).toLocaleString('en-IN')}`,
             category,
             projectedOverage: projectedCategoryTotal - budget,
             confidence: categoryPredictions.length > 0 ? 0.7 : 0.5
@@ -183,7 +184,7 @@ export class ExpensePredictionService {
 
     // General financial health suggestions
     const totalMonthlySpending = patterns.reduce((sum, p) => sum + (p.averageAmount * p.frequency), 0);
-    
+
     if (totalMonthlySpending > 40000) {
       suggestions.push('Consider reviewing your largest expense categories for potential savings');
     }
@@ -194,39 +195,47 @@ export class ExpensePredictionService {
     return suggestions.slice(0, 5); // Limit to 5 suggestions
   }
 
-  private groupByCategory(expenses: any[]): Record<string, any[]> {
-    return expenses.reduce((groups, expense) => {
-      const categoryId = expense.category_id;
-      if (!groups[categoryId]) groups[categoryId] = [];
+  private groupByCategory(expenses: Array<Record<string, unknown>>): Record<string, Array<Record<string, unknown>>> {
+    const groups: Record<string, Array<Record<string, unknown>>> = {};
+
+    for (const expense of expenses) {
+      const categoryId = expense.category_id as string;
+      if (!groups[categoryId]) {
+        groups[categoryId] = [];
+      }
       groups[categoryId].push(expense);
-      return groups;
-    }, {});
+    }
+
+    return groups;
   }
 
-  private groupExpensesByCategory(expenses: any[]): Record<string, number> {
-    return expenses.reduce((groups, expense) => {
-      const categoryName = expense.categories?.name || 'Other';
-      groups[categoryName] = (groups[categoryName] || 0) + expense.amount;
-      return groups;
-    }, {});
+  private groupExpensesByCategory(expenses: Array<Record<string, unknown>>): Record<string, number> {
+    const groups: Record<string, number> = {};
+
+    for (const expense of expenses) {
+      const categoryName = (expense.categories as { name?: string })?.name || 'Other';
+      groups[categoryName] = (groups[categoryName] || 0) + (expense.amount as number);
+    }
+
+    return groups;
   }
 
-  private analyzeCategory(categoryId: string, expenses: any[]): SpendingPattern | null {
+  private analyzeCategory(categoryId: string, expenses: Array<Record<string, unknown>>): SpendingPattern | null {
     if (expenses.length < 3) return null; // Need at least 3 data points
 
-    const amounts = expenses.map(e => e.amount);
+    const amounts = expenses.map(e => e.amount as number);
     const averageAmount = amounts.reduce((sum, a) => sum + a, 0) / amounts.length;
-    
+
     // Calculate frequency (expenses per month)
-    const oldestDate = new Date(Math.min(...expenses.map(e => new Date(e.created_at).getTime())));
-    const newestDate = new Date(Math.max(...expenses.map(e => new Date(e.created_at).getTime())));
+    const oldestDate = new Date(Math.min(...expenses.map(e => new Date(e.created_at as string).getTime())));
+    const newestDate = new Date(Math.max(...expenses.map(e => new Date(e.created_at as string).getTime())));
     const monthsDiff = Math.max(1, (newestDate.getTime() - oldestDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
     const frequency = expenses.length / monthsDiff;
 
     // Analyze day of week patterns
     const dayCount = new Array(7).fill(0);
     expenses.forEach(expense => {
-      const day = new Date(expense.created_at).getDay();
+      const day = new Date(expense.created_at as string).getDay();
       dayCount[day]++;
     });
     const dayOfWeek = dayCount.map((count, index) => ({ day: index, count }))
@@ -236,9 +245,9 @@ export class ExpensePredictionService {
     // Calculate trend
     const recent = expenses.slice(0, Math.min(5, Math.floor(expenses.length / 2)));
     const older = expenses.slice(-Math.min(5, Math.floor(expenses.length / 2)));
-    const recentAvg = recent.reduce((sum, e) => sum + e.amount, 0) / recent.length;
-    const olderAvg = older.reduce((sum, e) => sum + e.amount, 0) / older.length;
-    
+    const recentAvg = recent.reduce((sum, e) => sum + (e.amount as number), 0) / recent.length;
+    const olderAvg = older.reduce((sum, e) => sum + (e.amount as number), 0) / older.length;
+
     let trend: 'increasing' | 'decreasing' | 'stable' = 'stable';
     if (recentAvg > olderAvg * 1.15) trend = 'increasing';
     else if (recentAvg < olderAvg * 0.85) trend = 'decreasing';
@@ -251,12 +260,13 @@ export class ExpensePredictionService {
 
     return {
       categoryId,
-      categoryName: expenses[0].categories?.name || 'Unknown',
+      categoryName: (expenses[0].categories as { name?: string })?.name || 'Unknown',
       averageAmount,
       frequency,
       dayOfWeek,
       timeOfMonth,
-      seasonality
+      seasonality,
+      trend
     };
   }
 
@@ -264,7 +274,7 @@ export class ExpensePredictionService {
     // Base probability from frequency
     const dailyProbability = pattern.frequency / 30;
     const probability = dailyProbability * days;
-    
+
     // Adjust based on day of week
     if (pattern.dayOfWeek.length <= 3) {
       // If spending is concentrated on specific days, increase probability
@@ -305,20 +315,20 @@ export class ExpensePredictionService {
 
   private generateReasoning(pattern: SpendingPattern, confidence: number): string {
     const reasons = [];
-    
+
     if (pattern.frequency > 8) {
       reasons.push('frequent spending pattern');
     }
-    
+
     if (pattern.dayOfWeek.length <= 3) {
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       reasons.push(`typically spent on ${pattern.dayOfWeek.map(d => days[d]).join(', ')}`);
     }
-    
+
     if (pattern.trend === 'increasing') {
       reasons.push('increasing trend');
     }
-    
+
     if (confidence > 0.7) {
       reasons.push('high historical consistency');
     }
@@ -326,11 +336,11 @@ export class ExpensePredictionService {
     return `Based on ${reasons.join(', ')}`;
   }
 
-  private analyzeTimeOfMonth(expenses: any[]): 'early' | 'mid' | 'late' {
+  private analyzeTimeOfMonth(expenses: Array<Record<string, unknown>>): 'early' | 'mid' | 'late' {
     const dayDistribution = { early: 0, mid: 0, late: 0 };
-    
+
     expenses.forEach(expense => {
-      const day = new Date(expense.created_at).getDate();
+      const day = new Date(expense.created_at as string).getDate();
       if (day <= 10) dayDistribution.early++;
       else if (day <= 20) dayDistribution.mid++;
       else dayDistribution.late++;
@@ -340,16 +350,16 @@ export class ExpensePredictionService {
     return Object.keys(dayDistribution).find(key => dayDistribution[key as keyof typeof dayDistribution] === max) as 'early' | 'mid' | 'late';
   }
 
-  private analyzeSeasonality(expenses: any[]): Record<string, number> {
+  private analyzeSeasonality(expenses: Array<Record<string, unknown>>): Record<string, number> {
     const monthCounts = new Array(12).fill(0);
     expenses.forEach(expense => {
-      const month = new Date(expense.created_at).getMonth();
+      const month = new Date(expense.created_at as string).getMonth();
       monthCounts[month]++;
     });
 
     const average = monthCounts.reduce((sum, count) => sum + count, 0) / 12;
     const seasonality: Record<string, number> = {};
-    
+
     monthCounts.forEach((count, month) => {
       seasonality[month.toString()] = count > 0 ? count / average : 1;
     });

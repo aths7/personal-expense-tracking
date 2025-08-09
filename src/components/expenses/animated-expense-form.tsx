@@ -22,9 +22,7 @@ import {
   DollarSign, 
   Calendar, 
   Tag, 
-  FileText, 
   Sparkles, 
-  TrendingUp,
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
@@ -32,8 +30,7 @@ import {
 import { AnimatedCard } from '@/components/ui/animated-card';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { AnimatedCategorySelector } from '@/components/animations/interactive-categories';
-import { MoneyRain, CoinFlip } from '@/components/animations/money-rain';
-import { ExpenseAmountAnimation } from '@/components/animations/character-animations';
+import { MoneyRain } from '@/components/animations/money-rain';
 import { 
   ExpenseSuccessAnimation, 
   RippleEffect, 
@@ -60,7 +57,7 @@ const expenseSchema = z.object({
 type ExpenseFormData = z.infer<typeof expenseSchema>;
 
 interface AnimatedExpenseFormProps {
-  onExpenseAdded?: (expense: any) => void;
+  onExpenseAdded?: (expense: Record<string, unknown>) => void;
   onClose?: () => void;
 }
 
@@ -445,7 +442,7 @@ export function AnimatedExpenseForm({ onExpenseAdded, onClose }: AnimatedExpense
                   onClick={nextStep}
                   disabled={!watchedAmount || (step === 2 && !watchedCategoryId)}
                   className="flex-1 ml-2"
-                  glow={watchedAmount && (step !== 2 || watchedCategoryId)}
+                  glow={!!(watchedAmount && (step !== 2 || watchedCategoryId))}
                 >
                   Next
                 </EnhancedButton>
@@ -504,7 +501,7 @@ export function AnimatedExpenseForm({ onExpenseAdded, onClose }: AnimatedExpense
       <ConfettiBurst
         isActive={activeAnimations.confetti}
         intensity={animationData.intensity}
-        colors={animationData.colors}
+        colors={animationData.color ? [animationData.color] : undefined}
       />
 
       <MoneyRain

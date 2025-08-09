@@ -10,7 +10,6 @@ import {
   Sparkles, 
   Clock, 
   Trophy,
-  Calendar,
   Star,
   ChevronRight
 } from 'lucide-react';
@@ -60,7 +59,7 @@ export function SeasonalWidget() {
         <div className="absolute inset-0 overflow-hidden">
           {Array.from({ length: 8 }, (_, i) => (
             <motion.div
-              key={i}
+              key={`seasonal-bg-${Date.now()}-${i}`}
               className="absolute w-1 h-1 bg-white/30 rounded-full"
               animate={{
                 x: [Math.random() * 300, Math.random() * 300],

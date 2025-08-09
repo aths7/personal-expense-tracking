@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// Card components removed - not used in current implementation
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -24,7 +24,7 @@ import {
   Zap
 } from 'lucide-react';
 
-import { AnimatedCard } from '@/components/ui/animated-card';
+// AnimatedCard removed - not used in current implementation
 import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { formatCurrency } from '@/lib/currency';
 
@@ -32,7 +32,7 @@ interface WelcomeStep {
   id: number;
   title: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   content: React.ReactNode;
   color: string;
 }
@@ -86,7 +86,7 @@ export function WelcomeTutorial({ onComplete, onSkip }: WelcomeTutorialProps) {
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <h3 className="font-semibold text-green-800 mb-2">How to Add Expenses:</h3>
             <ol className="list-decimal list-inside space-y-2 text-sm text-green-700">
-              <li>Click the "Add Expense" button or floating action button</li>
+              <li>Click the &ldquo;Add Expense&rdquo; button or floating action button</li>
               <li>Enter the amount (in Indian Rupees ₹)</li>
               <li>Choose a category with fun animations</li>
               <li>Add a description and date</li>
@@ -125,7 +125,7 @@ export function WelcomeTutorial({ onComplete, onSkip }: WelcomeTutorialProps) {
         <div className="space-y-4">
           <div className="text-center">
             <motion.div
-              animate={{ bounce: [0, -10, 0] }}
+              animate={{ y: [0, -10, 0] }}
               transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
               className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center text-3xl border-2 border-white shadow-lg mb-4"
             >
@@ -324,7 +324,7 @@ export function WelcomeTutorial({ onComplete, onSkip }: WelcomeTutorialProps) {
             </div>
           </motion.div>
 
-          <h2 className="text-2xl font-bold text-gray-800">You're All Set!</h2>
+          <h2 className="text-2xl font-bold text-gray-800">You&rsquo;re All Set!</h2>
           <p className="text-gray-600">
             Start tracking your expenses and watch your financial journey come to life with characters, achievements, and insights.
           </p>

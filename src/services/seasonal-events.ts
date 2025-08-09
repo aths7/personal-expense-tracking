@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/client';
-import { formatCurrency } from '@/lib/currency';
 
 export interface SeasonalEvent {
   id: string;
@@ -68,7 +67,7 @@ class SeasonalEventsService {
   async getActiveEvents(): Promise<SeasonalEvent[]> {
     try {
       const currentDate = new Date().toISOString();
-      
+
       // In a real app, this would fetch from database
       // For now, we'll return mock seasonal events based on current date
       return this.getMockActiveEvents(currentDate);
@@ -79,7 +78,7 @@ class SeasonalEventsService {
   }
 
   // Get user's progress in seasonal events
-  async getUserEventProgress(eventId: string): Promise<UserSeasonalProgress | null> {
+  async getUserEventProgress(_eventId: string): Promise<UserSeasonalProgress | null> {
     try {
       const { data: { user } } = await this.supabase.auth.getUser();
       if (!user) return null;
@@ -87,7 +86,7 @@ class SeasonalEventsService {
       // Mock progress data - in real app would fetch from database
       return {
         user_id: user.id,
-        event_id: eventId,
+        event_id: _eventId,
         points_earned: Math.floor(Math.random() * 500) + 100,
         challenges_completed: Math.floor(Math.random() * 3) + 1,
         rewards_unlocked: ['diwali_badge', 'sparkler_accessory'],
@@ -182,7 +181,6 @@ class SeasonalEventsService {
   // Generate time-limited challenges based on current events
   generateTimeLimitedChallenges(event: SeasonalEvent): SeasonalChallenge[] {
     const challenges: SeasonalChallenge[] = [];
-    const { data: { user } } = this.supabase.auth.getUser();
 
     // Festival spending challenge
     if (event.theme === 'diwali') {
@@ -233,26 +231,26 @@ class SeasonalEventsService {
   }
 
   // Check for seasonal achievement unlocks
-  async checkSeasonalAchievements(expenses: any[]): Promise<string[]> {
+  async checkSeasonalAchievements(expenses: { date: string; amount: number }[]): Promise<string[]> {
     const achievements: string[] = [];
     const currentEvent = (await this.getActiveEvents())[0];
-    
+
     if (!currentEvent) return achievements;
 
     // Festival-specific achievements
     if (currentEvent.theme === 'diwali') {
       // Check if user spent wisely during Diwali
-      const diwaliExpenses = expenses.filter(e => 
+      const diwaliExpenses = expenses.filter(e =>
         new Date(e.date) >= new Date(currentEvent.start_date) &&
         new Date(e.date) <= new Date(currentEvent.end_date)
       );
-      
+
       const totalDiwaliSpending = diwaliExpenses.reduce((sum, e) => sum + e.amount, 0);
-      
+
       if (totalDiwaliSpending < 10000) {
         achievements.push('diwali_smart_spender');
       }
-      
+
       if (diwaliExpenses.length >= 10) {
         achievements.push('diwali_tracker_champion');
       }
@@ -277,7 +275,7 @@ class SeasonalEventsService {
         discount: 100,
         type: 'points_multiplier'
       });
-      
+
       offers.push({
         title: 'Festival Bonus Characters',
         description: 'Unlock special Diwali-themed characters at 50% fewer points',
@@ -290,14 +288,14 @@ class SeasonalEventsService {
   }
 
   // Private helper method to generate mock active events
-  private getMockActiveEvents(currentDate: string): SeasonalEvent[] {
+  private getMockActiveEvents(_currentDate: string): SeasonalEvent[] {
     const events: SeasonalEvent[] = [];
     const now = new Date();
     const currentMonth = now.getMonth();
 
     // Determine which festival is active based on current date
     let activeTheme: SeasonalEvent['theme'] = 'general';
-    
+
     // Indian festival calendar (approximate dates)
     if (currentMonth === 9 || currentMonth === 10) { // Oct-Nov - Diwali season
       activeTheme = 'diwali';
