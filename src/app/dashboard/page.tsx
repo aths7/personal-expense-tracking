@@ -12,26 +12,26 @@ import { useExpenses } from '@/hooks/useExpenses';
 import { useGamification } from '@/hooks/useGamification';
 import { formatCurrency } from '@/lib/currency';
 import { formatDate } from '@/utils/dates';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  TrendingDown, 
+import {
+  IndianRupee,
+  TrendingUp,
+  TrendingDown,
   Plus,
-  Receipt,
+  ReceiptIndianRupee,
   Calendar,
   Trophy,
   Flame,
-  Star
+  Star,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
-function StatCard({ 
-  title, 
-  value, 
-  description, 
-  icon: Icon, 
-  trend 
+function StatCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+  trend
 }: {
   title: string;
   value: string;
@@ -106,16 +106,16 @@ export default function DashboardPage() {
               <div className="px-3 py-1 glass-morphism dark:glass-morphism-dark rounded-full border border-primary/20 w-fit">
                 <p className="text-sm font-medium text-primary">
                   <span className="hidden sm:inline">
-                    {new Date().toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
+                    {new Date().toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
                     })}
                   </span>
                   <span className="sm:hidden">
-                    {new Date().toLocaleDateString('en-US', { 
-                      month: 'short', 
+                    {new Date().toLocaleDateString('en-US', {
+                      month: 'short',
                       day: 'numeric',
                       year: 'numeric'
                     })}
@@ -129,7 +129,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             <QuickExpenseButton />
-            <Button 
+            <Button
               onClick={() => setIsExpenseModalOpen(true)}
               className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5 rounded-full font-semibold"
             >
@@ -146,7 +146,7 @@ export default function DashboardPage() {
             title="Total Expenses"
             value={formatCurrency(stats.totalExpenses)}
             description="All time total"
-            icon={DollarSign}
+            icon={IndianRupee}
           />
           <StatCard
             title="This Month"
@@ -165,7 +165,7 @@ export default function DashboardPage() {
             title="Total Transactions"
             value={expenses.length.toString()}
             description="All recorded expenses"
-            icon={Receipt}
+            icon={ReceiptIndianRupee}
           />
         </div>
 
