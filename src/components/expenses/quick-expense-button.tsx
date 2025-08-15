@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -18,13 +18,14 @@ import {
 import { useExpenses } from '@/hooks/useExpenses';
 import { useCategories } from '@/hooks/useCategories';
 import { useExpenseAnimations } from '@/hooks/useExpenseAnimations';
+import { useQuickTemplates } from '@/hooks/useQuickTemplates';
 import { formatCurrency, getExpenseContext } from '@/lib/currency';
 
 interface QuickExpenseButtonProps {
   className?: string;
 }
 
-const quickExpenseTemplates = [
+const defaultQuickExpenseTemplates = [
   { icon: Coffee, label: 'Tea/Coffee', amount: 25, categoryName: 'Food & Dining' },
   { icon: Utensils, label: 'Meal', amount: 150, categoryName: 'Food & Dining' },
   { icon: Car, label: 'Transport', amount: 50, categoryName: 'Transportation' },
@@ -37,13 +38,40 @@ export function QuickExpenseButton({ className = '' }: QuickExpenseButtonProps) 
   const [customAmount, setCustomAmount] = useState('');
   const [customDescription, setCustomDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const { addExpense, expenses } = useExpenses();
   const { categories } = useCategories();
   const {
     triggerExpenseAnimation,
     clearAllAnimations
   } = useExpenseAnimations();
+
+  // Import the useQuickTemplates hook
+  const { templates: dbTemplates, loading: templatesLoading } = useQuickTemplates();
+
+  // Helper function to get icon component from string (moved before useMemo)
+  const getIconComponent = (iconName: string) => {
+    switch (iconName) {
+      case 'Coffee': return Coffee;
+      case 'Utensils': return Utensils;
+      case 'Car': return Car;
+      case 'ShoppingBag': return ShoppingBag;
+      default: return Coffee;
+    }
+  };
+
+  // Convert database templates to the format expected by this component
+  const quickExpenseTemplates = useMemo(() => {
+    if (templatesLoading || !dbTemplates?.length) {
+      return defaultQuickExpenseTemplates;
+    }
+    
+    return dbTemplates.map((template) => ({
+      icon: getIconComponent(template.icon),
+      label: template.label,
+      amount: template.amount,
+      categoryName: template.category_name,
+    }));
+  }, [dbTemplates, templatesLoading]);
 
   const handleQuickExpense = async (template: typeof quickExpenseTemplates[0]) => {
     if (isSubmitting) return;

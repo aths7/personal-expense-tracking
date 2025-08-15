@@ -9,7 +9,8 @@ import {
   Receipt, 
   Tag, 
   Trophy,
-  IndianRupee
+  IndianRupee,
+  Zap
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -26,6 +27,11 @@ const navigation = [
     name: 'Expenses',
     href: '/expenses',
     icon: Receipt,
+  },
+  {
+    name: 'Quick Expenses',
+    href: '/quick-expenses',
+    icon: Zap,
   },
   {
     name: 'Categories',
