@@ -67,12 +67,12 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       };
 
       if (!profile) {
-        // First time user - show tutorial
+        // First time user - disable tutorial for now
         setIsFirstTime(true);
-        setShowTutorial(true);
+        setShowTutorial(false); // Disabled
       } else {
         setIsFirstTime(!profile.onboarding_completed);
-        setShowTutorial(!profile.onboarding_completed);
+        setShowTutorial(false); // Disabled
         
         if (profile.onboarding_steps) {
           setCompletedSteps(new Set(profile.onboarding_steps));
@@ -80,9 +80,9 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
       }
     } catch (error) {
       console.error('Error checking onboarding status:', error);
-      // Assume first time user on error
+      // Assume first time user on error - tutorial disabled for now
       setIsFirstTime(true);
-      setShowTutorial(true);
+      setShowTutorial(false); // Disabled
     } finally {
       setLoading(false);
     }

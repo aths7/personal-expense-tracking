@@ -14,6 +14,7 @@ import {
   Tooltip,
   BarChart,
   Bar,
+  Legend,
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/currency';
@@ -23,14 +24,15 @@ interface ExpenseChartsProps {
   stats: DashboardStats;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+// Dark Moonlight color palette for better contrast
+const DARK_MOONLIGHT_COLORS = ['#292966', '#5c5c99', '#4a4a88', '#3d3d77', '#6666b3', '#474788', '#333366', '#555599'];
 
 export function ExpenseCharts({ stats }: ExpenseChartsProps) {
   const pieData = useMemo(() => {
     return stats.categoryBreakdown.slice(0, 5).map((item, index) => ({
       name: item.category,
       value: item.amount,
-      color: item.color,
+      color: DARK_MOONLIGHT_COLORS[index % DARK_MOONLIGHT_COLORS.length],
     }));
   }, [stats.categoryBreakdown]);
 
@@ -44,9 +46,9 @@ export function ExpenseCharts({ stats }: ExpenseChartsProps) {
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number }>; label?: string }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-background border rounded-lg shadow-lg p-3">
-          <p className="font-medium">{label}</p>
-          <p className="text-primary">
+        <div className="glass-morphism dark:glass-morphism-dark border border-border/30 rounded-lg shadow-elegant p-3 backdrop-blur-xl">
+          <p className="font-medium text-foreground">{label}</p>
+          <p className="text-primary font-semibold">
             {formatCurrency(payload[0].value)}
           </p>
         </div>
@@ -59,9 +61,9 @@ export function ExpenseCharts({ stats }: ExpenseChartsProps) {
     if (active && payload && payload.length) {
       const data = payload[0];
       return (
-        <div className="bg-background border rounded-lg shadow-lg p-3">
-          <p className="font-medium">{data.name}</p>
-          <p className="text-primary">
+        <div className="glass-morphism dark:glass-morphism-dark border border-border/30 rounded-lg shadow-elegant p-3 backdrop-blur-xl">
+          <p className="font-medium text-foreground">{data.name}</p>
+          <p className="text-primary font-semibold">
             {formatCurrency(data.value)}
           </p>
         </div>
@@ -73,9 +75,9 @@ export function ExpenseCharts({ stats }: ExpenseChartsProps) {
   if (stats.totalExpenses === 0) {
     return (
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant">
           <CardHeader>
-            <CardTitle>Category Distribution</CardTitle>
+            <CardTitle className="text-foreground">Category Distribution</CardTitle>
             <CardDescription>Expenses by category</CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-center h-64">
@@ -86,9 +88,9 @@ export function ExpenseCharts({ stats }: ExpenseChartsProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant">
           <CardHeader>
-            <CardTitle>Monthly Trend</CardTitle>
+            <CardTitle className="text-foreground">Monthly Trend</CardTitle>
             <CardDescription>Spending over time</CardDescription>
           </CardHeader>
           <CardContent className="flex items-center justify-center h-64">
@@ -105,53 +107,77 @@ export function ExpenseCharts({ stats }: ExpenseChartsProps) {
   return (
     <div className="grid gap-6 md:grid-cols-2">
       {/* Category Distribution Pie Chart */}
-      <Card>
+      <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant">
         <CardHeader>
-          <CardTitle>Category Distribution</CardTitle>
+          <CardTitle className="text-foreground">Category Distribution</CardTitle>
           <CardDescription>Expenses by category</CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
                 data={pieData}
                 cx="50%"
-                cy="50%"
+                cy="45%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
                 outerRadius={80}
-                fill="#8884d8"
+                innerRadius={40}
+                fill="#292966"
                 dataKey="value"
               >
                 {pieData.map((entry) => (
-                  <Cell key={entry.name} fill={entry.color || '#8884d8'} />
+                  <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip content={<PieTooltip />} />
+              <Legend 
+                verticalAlign="bottom" 
+                height={60}
+                wrapperStyle={{ 
+                  paddingTop: '20px',
+                  fontSize: '12px',
+                  color: '#292966',
+                  fontWeight: '500'
+                }}
+                formatter={(value) => `${value}`}
+              />
             </PieChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
       {/* Monthly Trend Line Chart */}
-      <Card>
+      <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant">
         <CardHeader>
-          <CardTitle>Monthly Trend</CardTitle>
+          <CardTitle className="text-foreground">Monthly Trend</CardTitle>
           <CardDescription>Spending over the last 6 months</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={monthlyTrendData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
+              <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.1} />
+              <XAxis 
+                dataKey="month" 
+                stroke="currentColor" 
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis 
+                stroke="currentColor" 
+                fontSize={12}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(value) => `₹${value}`}
+              />
               <Tooltip content={<CustomTooltip />} />
               <Line
                 type="monotone"
                 dataKey="amount"
-                stroke="#8884d8"
-                strokeWidth={2}
-                dot={{ fill: '#8884d8', strokeWidth: 2, r: 4 }}
+                stroke="#5c5c99"
+                strokeWidth={3}
+                dot={{ fill: '#ccccff', strokeWidth: 2, r: 6 }}
+                activeDot={{ r: 8, fill: '#292966', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -171,19 +197,19 @@ interface CategoryBarChartProps {
 
 export function CategoryBarChart({ categoryBreakdown }: CategoryBarChartProps) {
   const chartData = useMemo(() => {
-    return categoryBreakdown.slice(0, 8).map((item) => ({
+    return categoryBreakdown.slice(0, 8).map((item, index) => ({
       name: item.category.length > 12 ? item.category.substring(0, 12) + '...' : item.category,
       amount: item.amount,
       fullName: item.category,
-      color: item.color,
+      color: DARK_MOONLIGHT_COLORS[index % DARK_MOONLIGHT_COLORS.length],
     }));
   }, [categoryBreakdown]);
 
   if (categoryBreakdown.length === 0) {
     return (
-      <Card>
+      <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant">
         <CardHeader>
-          <CardTitle>Top Categories</CardTitle>
+          <CardTitle className="text-foreground">Top Categories</CardTitle>
           <CardDescription>Your highest spending categories</CardDescription>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-64">
@@ -200,9 +226,9 @@ export function CategoryBarChart({ categoryBreakdown }: CategoryBarChartProps) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-background border rounded-lg shadow-lg p-3">
-          <p className="font-medium">{data.fullName}</p>
-          <p className="text-primary">
+        <div className="glass-morphism dark:glass-morphism-dark border border-border/30 rounded-lg shadow-elegant p-3 backdrop-blur-xl">
+          <p className="font-medium text-foreground">{data.fullName}</p>
+          <p className="text-primary font-semibold">
             {formatCurrency(data.amount)}
           </p>
         </div>
@@ -212,26 +238,35 @@ export function CategoryBarChart({ categoryBreakdown }: CategoryBarChartProps) {
   };
 
   return (
-    <Card>
+    <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant">
       <CardHeader>
-        <CardTitle>Top Categories</CardTitle>
+        <CardTitle className="text-foreground">Top Categories</CardTitle>
         <CardDescription>Your highest spending categories</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
+          <BarChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="currentColor" opacity={0.1} />
             <XAxis 
               dataKey="name" 
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: 'currentColor' }}
               interval={0}
               angle={-45}
               textAnchor="end"
               height={60}
+              stroke="currentColor"
+              tickLine={false}
+              axisLine={false}
             />
-            <YAxis />
+            <YAxis 
+              tick={{ fontSize: 12, fill: 'currentColor' }}
+              stroke="currentColor"
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value) => `₹${value}`}
+            />
             <Tooltip content={<CustomBarTooltip />} />
-            <Bar dataKey="amount" fill="#8884d8">
+            <Bar dataKey="amount" fill="#292966" radius={[4, 4, 0, 0]}>
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}

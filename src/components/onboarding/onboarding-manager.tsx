@@ -20,25 +20,25 @@ export function OnboardingManager() {
   
   const [showQuickStart, setShowQuickStart] = useState(false);
 
-  // Show quick start guide if user skips tutorial or completes it
-  useEffect(() => {
-    if (!showTutorial && !isFirstTime && user) {
-      const hasSeenQuickStart = localStorage.getItem('hasSeenQuickStart');
-      if (!hasSeenQuickStart) {
-        setShowQuickStart(true);
-      }
-    }
-  }, [showTutorial, isFirstTime, user]);
+  // Disable quick start guide for now
+  // useEffect(() => {
+  //   if (!showTutorial && !isFirstTime && user) {
+  //     const hasSeenQuickStart = localStorage.getItem('hasSeenQuickStart');
+  //     if (!hasSeenQuickStart) {
+  //       setShowQuickStart(true);
+  //     }
+  //   }
+  // }, [showTutorial, isFirstTime, user]);
 
   const handleTutorialComplete = () => {
     completeTutorial();
-    setShowQuickStart(true);
+    // setShowQuickStart(true);
     localStorage.setItem('hasSeenQuickStart', 'true');
   };
 
   const handleTutorialSkip = () => {
     skipTutorial();
-    setShowQuickStart(true);
+    // setShowQuickStart(true);
     localStorage.setItem('hasSeenQuickStart', 'true');
   };
 
@@ -54,22 +54,24 @@ export function OnboardingManager() {
 
   return (
     <>
-      <AnimatePresence>
+      {/* Welcome Tutorial temporarily disabled */}
+      {/* <AnimatePresence>
         {showTutorial && (
           <WelcomeTutorial 
             onComplete={handleTutorialComplete}
             onSkip={handleTutorialSkip}
           />
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
 
-      <AnimatePresence>
+      {/* Quick Start Guide temporarily disabled */}
+      {/* <AnimatePresence>
         {showQuickStart && !showTutorial && (
           <QuickStartGuide 
             onClose={handleQuickStartClose}
           />
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
 
       {/* Feature highlights (always available) */}
       <FeatureHighlights />

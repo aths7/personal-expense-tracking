@@ -161,7 +161,7 @@ export function QuickExpenseButton({ className = '' }: QuickExpenseButtonProps) 
       >
         <Button
           onClick={() => setIsOpen(!isOpen)}
-          className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg"
+          className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5 rounded-full font-semibold"
           size="lg"
         >
           <motion.div
@@ -185,14 +185,15 @@ export function QuickExpenseButton({ className = '' }: QuickExpenseButtonProps) 
             transition={{ duration: 0.2, ease: "backOut" }}
             className="absolute top-full left-0 mt-2 z-50"
           >
-            <Card className="w-80 shadow-xl border-2 border-green-200">
+            <Card className="w-80 glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant backdrop-blur-xl">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-lg">Quick Expense</h3>
+                  <h3 className="font-semibold text-lg text-foreground">Quick Expense</h3>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsOpen(false)}
+                    className="hover:bg-primary/10 hover:text-primary rounded-full"
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -212,13 +213,13 @@ export function QuickExpenseButton({ className = '' }: QuickExpenseButtonProps) 
                             whileTap={{ scale: 0.98 }}
                             onClick={() => handleQuickExpense(template)}
                             disabled={isSubmitting}
-                            className="p-3 border-2 border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors text-left group disabled:opacity-50"
+                            className="p-3 glass-morphism dark:glass-morphism-dark border border-border/30 rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 text-left group disabled:opacity-50 hover:-translate-y-0.5"
                           >
                             <div className="flex items-center space-x-2 mb-2">
-                              <IconComponent className="w-5 h-5 text-gray-600 group-hover:text-green-600" />
-                              <span className="font-medium text-sm">{template.label}</span>
+                              <IconComponent className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
+                              <span className="font-medium text-sm text-foreground">{template.label}</span>
                             </div>
-                            <div className="text-lg font-bold text-green-600">
+                            <div className="text-lg font-bold text-primary">
                               {formatCurrency(template.amount)}
                             </div>
                           </motion.button>
@@ -230,7 +231,7 @@ export function QuickExpenseButton({ className = '' }: QuickExpenseButtonProps) 
                     <Button
                       variant="outline"
                       onClick={() => setIsCustom(true)}
-                      className="w-full"
+                      className="w-full border-primary/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 hover:-translate-y-0.5 rounded-full font-medium"
                     >
                       <Plus className="w-4 h-4 mr-2" />
                       Custom Amount
@@ -241,22 +242,23 @@ export function QuickExpenseButton({ className = '' }: QuickExpenseButtonProps) 
                     {/* Custom Expense Form */}
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm font-medium">Amount</label>
+                        <label className="text-sm font-medium text-foreground">Amount</label>
                         <Input
                           type="number"
                           placeholder="₹0.00"
                           value={customAmount}
                           onChange={(e) => setCustomAmount(e.target.value)}
-                          className="text-lg font-bold"
+                          className="text-lg font-bold bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200"
                         />
                       </div>
                       
                       <div>
-                        <label className="text-sm font-medium">Description</label>
+                        <label className="text-sm font-medium text-foreground">Description</label>
                         <Input
                           placeholder="What was it for?"
                           value={customDescription}
                           onChange={(e) => setCustomDescription(e.target.value)}
+                          className="bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200"
                         />
                       </div>
                       
@@ -264,7 +266,7 @@ export function QuickExpenseButton({ className = '' }: QuickExpenseButtonProps) 
                         <Button
                           onClick={handleCustomExpense}
                           disabled={!customAmount || !customDescription || isSubmitting}
-                          className="flex-1"
+                          className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5 rounded-full font-semibold"
                         >
                           <Check className="w-4 h-4 mr-2" />
                           {isSubmitting ? 'Adding...' : 'Add'}
@@ -276,6 +278,7 @@ export function QuickExpenseButton({ className = '' }: QuickExpenseButtonProps) 
                             setCustomAmount('');
                             setCustomDescription('');
                           }}
+                          className="border-primary/30 hover:border-primary/50 hover:bg-primary/5 rounded-full"
                         >
                           <X className="w-4 h-4" />
                         </Button>
@@ -289,15 +292,15 @@ export function QuickExpenseButton({ className = '' }: QuickExpenseButtonProps) 
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg"
+                    className="absolute inset-0 glass-morphism dark:glass-morphism-dark flex items-center justify-center rounded-lg backdrop-blur-md"
                   >
                     <div className="flex items-center space-x-2">
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        className="w-5 h-5 border-2 border-green-500 border-t-transparent rounded-full"
+                        className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full"
                       />
-                      <span className="text-sm font-medium">Adding expense...</span>
+                      <span className="text-sm font-medium text-foreground">Adding expense...</span>
                     </div>
                   </motion.div>
                 )}

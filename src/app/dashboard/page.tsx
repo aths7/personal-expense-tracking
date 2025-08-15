@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ExpenseCharts, CategoryBarChart } from '@/components/charts/expense-charts';
 import { SeasonalWidget } from '@/components/seasonal/seasonal-widget';
 import { QuickExpenseButton } from '@/components/expenses/quick-expense-button';
+import { ExpenseModal } from '@/components/expenses/expense-modal';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useExpenses } from '@/hooks/useExpenses';
 import { useGamification } from '@/hooks/useGamification';
@@ -23,7 +24,7 @@ import {
   Star
 } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 function StatCard({ 
   title, 
@@ -39,19 +40,21 @@ function StatCard({
   trend?: 'up' | 'down' | 'neutral';
 }) {
   const getTrendIcon = () => {
-    if (trend === 'up') return <TrendingUp className="h-4 w-4 text-green-600" />;
-    if (trend === 'down') return <TrendingDown className="h-4 w-4 text-red-600" />;
+    if (trend === 'up') return <TrendingUp className="h-4 w-4 text-green-500" />;
+    if (trend === 'down') return <TrendingDown className="h-4 w-4 text-red-500" />;
     return null;
   };
 
   return (
-    <Card>
+    <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <CardTitle className="text-sm font-medium text-foreground">{title}</CardTitle>
+        <div className="p-2 rounded-lg bg-primary/10">
+          <Icon className="h-4 w-4 text-primary" />
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold text-foreground">{value}</div>
         <div className="flex items-center space-x-1 text-xs text-muted-foreground">
           {getTrendIcon()}
           <span>{description}</span>
@@ -62,6 +65,7 @@ function StatCard({
 }
 
 export default function DashboardPage() {
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const { stats, loading: statsLoading } = useDashboard();
   const { expenses, loading: expensesLoading } = useExpenses({});
   const { gameStats, loading: gameLoading } = useGamification();
@@ -95,20 +99,43 @@ export default function DashboardPage() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 lg:gap-0">
+          <div className="space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient-moonlight">Current Status</h1>
+              <div className="px-3 py-1 glass-morphism dark:glass-morphism-dark rounded-full border border-primary/20 w-fit">
+                <p className="text-sm font-medium text-primary">
+                  <span className="hidden sm:inline">
+                    {new Date().toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </span>
+                  <span className="sm:hidden">
+                    {new Date().toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </span>
+                </p>
+              </div>
+            </div>
             <p className="text-muted-foreground">
               Overview of your financial activity
             </p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <QuickExpenseButton />
-            <Button asChild variant="outline">
-              <Link href="/expenses?new=true">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Expense
-              </Link>
+            <Button 
+              onClick={() => setIsExpenseModalOpen(true)}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5 rounded-full font-semibold"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Add Expense</span>
+              <span className="sm:hidden">Add</span>
             </Button>
           </div>
         </div>
@@ -151,25 +178,25 @@ export default function DashboardPage() {
         {/* Bottom Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Recent Expenses */}
-          <Card>
+          <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant">
             <CardHeader>
-              <CardTitle>Recent Expenses</CardTitle>
+              <CardTitle className="text-foreground">Recent Expenses</CardTitle>
               <CardDescription>
                 Your latest transactions
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {recentExpenses.map((expense) => (
-                <div key={expense.id} className="flex items-center justify-between">
+                <div key={expense.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-primary/5 transition-colors duration-200">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">{expense.description}</p>
+                    <p className="text-sm font-medium text-foreground">{expense.description}</p>
                     <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                       <span>{expense.category?.name}</span>
                       <span>•</span>
                       <span>{formatDate(expense.date)}</span>
                     </div>
                   </div>
-                  <div className="text-sm font-medium">
+                  <div className="text-sm font-semibold text-primary">
                     {formatCurrency(expense.amount)}
                   </div>
                 </div>
@@ -180,7 +207,7 @@ export default function DashboardPage() {
                 </p>
               )}
               {recentExpenses.length > 0 && (
-                <Button asChild variant="outline" className="w-full mt-4">
+                <Button asChild variant="outline" className="w-full mt-4 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
                   <Link href="/expenses">View All Expenses</Link>
                 </Button>
               )}
@@ -189,10 +216,12 @@ export default function DashboardPage() {
 
           {/* Gamification Card */}
           {gameStats && (
-            <Card className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 border-purple-200 dark:border-purple-800">
+            <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant bg-gradient-to-br from-primary/5 to-accent/5">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Trophy className="h-5 w-5 text-yellow-500" />
+                <CardTitle className="flex items-center space-x-2 text-foreground">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Trophy className="h-5 w-5 text-primary" />
+                  </div>
                   <span>Your Progress</span>
                 </CardTitle>
                 <CardDescription>
@@ -202,29 +231,29 @@ export default function DashboardPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-semibold">{gameStats.levelInfo.name}</p>
+                    <p className="font-semibold text-foreground">{gameStats.levelInfo.name}</p>
                     <p className="text-sm text-muted-foreground">Level {gameStats.levelInfo.level}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-lg">{gameStats.profile.total_points}</p>
+                    <p className="font-bold text-lg text-primary">{gameStats.profile.total_points}</p>
                     <p className="text-sm text-muted-foreground">points</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <Flame className="h-5 w-5 text-orange-500 mx-auto mb-1" />
-                    <p className="font-bold">{gameStats.profile.current_streak}</p>
+                  <div className="text-center p-3 glass-morphism dark:glass-morphism-dark rounded-lg border border-border/20">
+                    <Flame className="h-5 w-5 text-accent mx-auto mb-1" />
+                    <p className="font-bold text-foreground">{gameStats.profile.current_streak}</p>
                     <p className="text-xs text-muted-foreground">day streak</p>
                   </div>
-                  <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <Star className="h-5 w-5 text-blue-500 mx-auto mb-1" />
-                    <p className="font-bold">{gameStats.achievements.length}</p>
+                  <div className="text-center p-3 glass-morphism dark:glass-morphism-dark rounded-lg border border-border/20">
+                    <Star className="h-5 w-5 text-primary mx-auto mb-1" />
+                    <p className="font-bold text-foreground">{gameStats.achievements.length}</p>
                     <p className="text-xs text-muted-foreground">achievements</p>
                   </div>
                 </div>
 
-                <Button asChild variant="outline" className="w-full">
+                <Button asChild variant="outline" className="w-full border-primary/30 hover:border-primary/50 hover:bg-primary/5">
                   <Link href="/gamification">View All Progress</Link>
                 </Button>
               </CardContent>
@@ -235,6 +264,13 @@ export default function DashboardPage() {
           <SeasonalWidget />
         </div>
       </div>
+
+      {/* Expense Modal */}
+      <ExpenseModal
+        isOpen={isExpenseModalOpen}
+        onClose={() => setIsExpenseModalOpen(false)}
+        redirectAfterSubmit={true}
+      />
     </DashboardLayout>
   );
 }
