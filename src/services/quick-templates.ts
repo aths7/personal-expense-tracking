@@ -38,16 +38,14 @@ export const quickTemplateService = {
   async getUserTemplates(): Promise<{ data: QuickExpenseTemplate[] | null; error: any }> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         return { data: null, error: new Error('User not authenticated') };
       }
 
-      const { data, error } = await supabase
-        .from('quick_expense_templates')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('sort_order', { ascending: true });
+      const base = supabase.from('quick_expense_templates').select('*');
+      const filtered = base.eq('user_id', user.id);
+      const { data, error } = await filtered.order('sort_order', { ascending: true });
 
       return { data, error };
     } catch (error) {
@@ -60,7 +58,7 @@ export const quickTemplateService = {
   async createTemplate(templateData: CreateQuickExpenseTemplate): Promise<{ data: QuickExpenseTemplate | null; error: any }> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         return { data: null, error: new Error('User not authenticated') };
       }
@@ -73,8 +71,8 @@ export const quickTemplateService = {
         .order('sort_order', { ascending: false })
         .limit(1);
 
-      const nextSortOrder = existingTemplates && existingTemplates.length > 0 
-        ? existingTemplates[0].sort_order + 1 
+      const nextSortOrder = existingTemplates && existingTemplates.length > 0
+        ? existingTemplates[0].sort_order + 1
         : 0;
 
       const { data, error } = await supabase
@@ -102,7 +100,7 @@ export const quickTemplateService = {
   async updateTemplate(id: string, updates: UpdateQuickExpenseTemplate): Promise<{ data: QuickExpenseTemplate | null; error: any }> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         return { data: null, error: new Error('User not authenticated') };
       }
@@ -126,7 +124,7 @@ export const quickTemplateService = {
   async deleteTemplate(id: string): Promise<{ error: any }> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         return { error: new Error('User not authenticated') };
       }
@@ -148,7 +146,7 @@ export const quickTemplateService = {
   async createDefaultTemplates(): Promise<{ data: QuickExpenseTemplate[] | null; error: any }> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         return { data: null, error: new Error('User not authenticated') };
       }
@@ -187,7 +185,7 @@ export const quickTemplateService = {
   async updateSortOrder(templates: { id: string; sort_order: number }[]): Promise<{ error: any }> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         return { error: new Error('User not authenticated') };
       }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { expensesService } from '@/services/expenses';
 import { gamificationService } from '@/services/gamification';
+import { expenseEvents } from '@/lib/expense-events';
 import type { Expense, ExpenseFormData, FilterOptions } from '@/types';
 import { toast } from 'sonner';
 
@@ -48,6 +49,9 @@ export const useExpenses = (initialFilters: FilterOptions = {}) => {
         setExpenses(prev => [newExpense, ...prev]);
         toast.success('Expense created successfully!');
         
+        // Emit event for dashboard and other components to update
+        expenseEvents.emit('EXPENSE_ADDED', newExpense);
+        
         // Check for achievements
         setTimeout(async () => {
           await gamificationService.checkAchievements();
@@ -86,6 +90,10 @@ export const useExpenses = (initialFilters: FilterOptions = {}) => {
           expense.id === id ? updatedExpense : expense
         ));
         toast.success('Expense updated successfully!');
+        
+        // Emit event for dashboard and other components to update
+        expenseEvents.emit('EXPENSE_UPDATED', updatedExpense);
+        
         return { success: true, data: updatedExpense };
       }
     } catch (err) {
@@ -105,6 +113,10 @@ export const useExpenses = (initialFilters: FilterOptions = {}) => {
       
       setExpenses(prev => prev.filter(expense => expense.id !== id));
       toast.success('Expense deleted successfully!');
+      
+      // Emit event for dashboard and other components to update
+      expenseEvents.emit('EXPENSE_DELETED', { id });
+      
       return { success: true };
     } catch (err) {
       toast.error('An unexpected error occurred');

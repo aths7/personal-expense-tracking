@@ -289,7 +289,11 @@ export const gamificationService: GamificationService = {
       `)
       .single();
 
-    return { data, error };
+    if (error) {
+      return { data: null, error: new Error(error.message) };
+    }
+
+    return { data: data as BudgetGoal, error: null };
   },
 
   deleteBudgetGoal: async (id: string) => {

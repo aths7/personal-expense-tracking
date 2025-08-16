@@ -46,6 +46,7 @@ export interface FilterOptions {
   min_amount?: number;
   max_amount?: number;
   search?: string;
+  limit?: number;
 }
 
 export interface DashboardStats {

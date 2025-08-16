@@ -6,12 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Coffee, 
-  Utensils, 
-  Car, 
-  ShoppingBag, 
+import {
+  Coffee,
+  Utensils,
+  Car,
+  ShoppingBag,
   Plus,
   Edit3,
   Trash2,
@@ -43,15 +44,15 @@ export default function QuickExpensesPage() {
     category_name: '',
   });
   const [isAddingNew, setIsAddingNew] = useState(false);
-  
+
   const { categories } = useCategories();
-  const { 
-    templates, 
-    loading, 
-    error, 
-    createTemplate, 
-    updateTemplate, 
-    deleteTemplate 
+  const {
+    templates,
+    loading,
+    error,
+    createTemplate,
+    updateTemplate,
+    deleteTemplate
   } = useQuickTemplates();
 
   const handleEdit = (template: typeof templates[0]) => {
@@ -80,7 +81,7 @@ export default function QuickExpensesPage() {
     }
 
     const category = categories?.find(c => c.name === newTemplate.category_name);
-    
+
     const templateData: CreateQuickExpenseTemplate = {
       icon: newTemplate.icon,
       label: newTemplate.label,
@@ -90,7 +91,7 @@ export default function QuickExpensesPage() {
     };
 
     const result = await createTemplate(templateData);
-    
+
     if (result) {
       setNewTemplate({
         icon: 'Coffee',
@@ -175,7 +176,7 @@ export default function QuickExpensesPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-foreground">Icon</Label>
-                  <Select value={newTemplate.icon} onValueChange={(value) => setNewTemplate({...newTemplate, icon: value})}>
+                  <Select value={newTemplate.icon} onValueChange={(value) => setNewTemplate({ ...newTemplate, icon: value })}>
                     <SelectTrigger className="bg-background/50 border-border/50 focus:border-primary/50">
                       <SelectValue />
                     </SelectTrigger>
@@ -199,7 +200,7 @@ export default function QuickExpensesPage() {
                   <Label className="text-sm font-medium text-foreground">Label</Label>
                   <Input
                     value={newTemplate.label}
-                    onChange={(e) => setNewTemplate({...newTemplate, label: e.target.value})}
+                    onChange={(e) => setNewTemplate({ ...newTemplate, label: e.target.value })}
                     placeholder="e.g. Morning Coffee"
                     className="bg-background/50 border-border/50 focus:border-primary/50"
                   />
@@ -212,7 +213,7 @@ export default function QuickExpensesPage() {
                     <Input
                       type="number"
                       value={newTemplate.amount || ''}
-                      onChange={(e) => setNewTemplate({...newTemplate, amount: parseFloat(e.target.value) || 0})}
+                      onChange={(e) => setNewTemplate({ ...newTemplate, amount: parseFloat(e.target.value) || 0 })}
                       placeholder="0.00"
                       className="pl-10 bg-background/50 border-border/50 focus:border-primary/50"
                     />
@@ -221,7 +222,7 @@ export default function QuickExpensesPage() {
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-foreground">Category</Label>
-                  <Select value={newTemplate.category_name} onValueChange={(value) => setNewTemplate({...newTemplate, category_name: value})}>
+                  <Select value={newTemplate.category_name} onValueChange={(value) => setNewTemplate({ ...newTemplate, category_name: value })}>
                     <SelectTrigger className="bg-background/50 border-border/50 focus:border-primary/50">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -270,7 +271,7 @@ export default function QuickExpensesPage() {
               <Card key={template.id} className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant hover:shadow-elegant-hover transition-all duration-300">
                 <CardContent className="p-6">
                   {isEditing ? (
-                    <EditTemplateForm 
+                    <EditTemplateForm
                       template={template}
                       categories={categories || []}
                       onSave={(updatedData) => handleSave(template.id, updatedData)}
@@ -288,7 +289,7 @@ export default function QuickExpensesPage() {
                             <p className="text-sm text-muted-foreground">{template.category_name}</p>
                           </div>
                         </div>
-                        
+
                         <div className="flex gap-2">
                           <Button
                             size="sm"
@@ -308,7 +309,7 @@ export default function QuickExpensesPage() {
                           </Button>
                         </div>
                       </div>
-                      
+
                       <div className="text-center pt-4 border-t border-border/20">
                         <div className="text-2xl font-bold text-primary">
                           {formatCurrency(template.amount)}
@@ -375,7 +376,7 @@ function EditTemplateForm({ template, categories, onSave, onCancel }: EditTempla
       toast.error('Please fill all fields');
       return;
     }
-    
+
     const category = categories.find(c => c.name === formData.category_name);
     onSave({
       ...formData,
@@ -388,7 +389,7 @@ function EditTemplateForm({ template, categories, onSave, onCancel }: EditTempla
       <div className="grid grid-cols-1 gap-3">
         <div className="space-y-2">
           <Label className="text-sm font-medium text-foreground">Icon</Label>
-          <Select value={formData.icon} onValueChange={(value) => setFormData({...formData, icon: value})}>
+          <Select value={formData.icon} onValueChange={(value) => setFormData({ ...formData, icon: value })}>
             <SelectTrigger className="bg-background/50 border-border/50 focus:border-primary/50">
               <SelectValue />
             </SelectTrigger>
@@ -412,7 +413,7 @@ function EditTemplateForm({ template, categories, onSave, onCancel }: EditTempla
           <Label className="text-sm font-medium text-foreground">Label</Label>
           <Input
             value={formData.label}
-            onChange={(e) => setFormData({...formData, label: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, label: e.target.value })}
             className="bg-background/50 border-border/50 focus:border-primary/50"
           />
         </div>
@@ -424,7 +425,7 @@ function EditTemplateForm({ template, categories, onSave, onCancel }: EditTempla
             <Input
               type="number"
               value={formData.amount}
-              onChange={(e) => setFormData({...formData, amount: parseFloat(e.target.value) || 0})}
+              onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })}
               className="pl-10 bg-background/50 border-border/50 focus:border-primary/50"
             />
           </div>
@@ -432,7 +433,7 @@ function EditTemplateForm({ template, categories, onSave, onCancel }: EditTempla
 
         <div className="space-y-2">
           <Label className="text-sm font-medium text-foreground">Category</Label>
-          <Select value={formData.category_name} onValueChange={(value) => setFormData({...formData, category_name: value})}>
+          <Select value={formData.category_name} onValueChange={(value) => setFormData({ ...formData, category_name: value })}>
             <SelectTrigger className="bg-background/50 border-border/50 focus:border-primary/50">
               <SelectValue />
             </SelectTrigger>
