@@ -4,7 +4,7 @@ export async function middleware(request: NextRequest) {
   console.log('🔥 MIDDLEWARE CALLED:', request.nextUrl.pathname);
   
   // Simple test - redirect to login for protected routes
-  const protectedRoutes = ['/dashboard', '/expenses', '/categories', '/gamification', '/quick-expenses'];
+  const protectedRoutes = ['/dashboard', '/expenses', '/categories', '/quick-expenses'];
   const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
   
   if (isProtectedRoute) {

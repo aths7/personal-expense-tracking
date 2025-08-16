@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
@@ -24,7 +24,7 @@ import {
   X,
 } from 'lucide-react';
 
-export default function ExpensesPage() {
+function ExpensesPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { categories } = useCategories();
@@ -375,5 +375,13 @@ export default function ExpensesPage() {
       </div>
       </DashboardLayout>
     </AuthGuard>
+  );
+}
+
+export default function ExpensesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ExpensesPageContent />
+    </Suspense>
   );
 }

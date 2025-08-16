@@ -5,12 +5,10 @@ import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExpenseCharts, CategoryBarChart } from '@/components/charts/expense-charts';
-import { SeasonalWidget } from '@/components/seasonal/seasonal-widget';
 import { QuickExpenseButton } from '@/components/expenses/quick-expense-button';
 import { ExpenseModal } from '@/components/expenses/expense-modal';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useExpenses } from '@/hooks/useExpenses';
-import { useGamification } from '@/hooks/useGamification';
 import { formatCurrency } from '@/lib/currency';
 import { formatDate } from '@/utils/dates';
 import {
@@ -20,9 +18,6 @@ import {
   Plus,
   ReceiptIndianRupee,
   Calendar,
-  Trophy,
-  Flame,
-  Star,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
@@ -69,7 +64,6 @@ export default function DashboardPage() {
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const { stats, loading: statsLoading } = useDashboard();
   const { expenses, loading: expensesLoading } = useExpenses({ limit: 5 }); // Only fetch 5 recent expenses
-  const { gameStats, loading: gameLoading } = useGamification();
 
   const recentExpenses = useMemo(() => {
     return expenses.slice(0, 5);
@@ -89,7 +83,6 @@ export default function DashboardPage() {
   // Show progressive loading - show stats first, then other components
   const showStats = !statsLoading;
   const showRecentExpenses = !expensesLoading;
-  const showGameStats = !gameLoading;
 
   if (statsLoading) {
     return (
@@ -248,8 +241,8 @@ export default function DashboardPage() {
         {/* Category Bar Chart */}
         {showStats && <CategoryBarChart categoryBreakdown={stats.categoryBreakdown} />}
 
-        {/* Bottom Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Recent Expenses */}
+        <div className="grid gap-6">
           {/* Recent Expenses */}
           <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant">
             <CardHeader>
@@ -304,82 +297,6 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* Gamification Card */}
-          <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant bg-gradient-to-br from-primary/5 to-accent/5">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-foreground">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Trophy className="h-5 w-5 text-primary" />
-                </div>
-                <span>Your Progress</span>
-              </CardTitle>
-              <CardDescription>
-                Level up your expense tracking game!
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!showGameStats ? (
-                // Loading skeleton for game stats
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="h-5 bg-muted animate-pulse rounded w-20"></div>
-                      <div className="h-4 bg-muted animate-pulse rounded w-16"></div>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <div className="h-6 bg-muted animate-pulse rounded w-12"></div>
-                      <div className="h-4 bg-muted animate-pulse rounded w-10"></div>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 glass-morphism dark:glass-morphism-dark rounded-lg border border-border/20">
-                      <div className="h-5 w-5 bg-muted animate-pulse rounded mx-auto mb-2"></div>
-                      <div className="h-5 bg-muted animate-pulse rounded w-8 mx-auto mb-1"></div>
-                      <div className="h-3 bg-muted animate-pulse rounded w-12 mx-auto"></div>
-                    </div>
-                    <div className="text-center p-3 glass-morphism dark:glass-morphism-dark rounded-lg border border-border/20">
-                      <div className="h-5 w-5 bg-muted animate-pulse rounded mx-auto mb-2"></div>
-                      <div className="h-5 bg-muted animate-pulse rounded w-8 mx-auto mb-1"></div>
-                      <div className="h-3 bg-muted animate-pulse rounded w-16 mx-auto"></div>
-                    </div>
-                  </div>
-                </div>
-              ) : gameStats ? (
-                <>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-foreground">{gameStats.levelInfo.name}</p>
-                      <p className="text-sm text-muted-foreground">Level {gameStats.levelInfo.level}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-lg text-primary">{gameStats.profile.total_points}</p>
-                      <p className="text-sm text-muted-foreground">points</p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 glass-morphism dark:glass-morphism-dark rounded-lg border border-border/20">
-                      <Flame className="h-5 w-5 text-accent mx-auto mb-1" />
-                      <p className="font-bold text-foreground">{gameStats.profile.current_streak}</p>
-                      <p className="text-xs text-muted-foreground">day streak</p>
-                    </div>
-                    <div className="text-center p-3 glass-morphism dark:glass-morphism-dark rounded-lg border border-border/20">
-                      <Star className="h-5 w-5 text-primary mx-auto mb-1" />
-                      <p className="font-bold text-foreground">{gameStats.achievements.length}</p>
-                      <p className="text-xs text-muted-foreground">achievements</p>
-                    </div>
-                  </div>
-
-                  <Button asChild variant="outline" className="w-full border-primary/30 hover:border-primary/50 hover:bg-primary/5">
-                    <Link href="/gamification">View All Progress</Link>
-                  </Button>
-                </>
-              ) : null}
-            </CardContent>
-          </Card>
-
-          {/* Seasonal Events Widget */}
-          <SeasonalWidget />
         </div>
       </div>
 

@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { MoodThemeProvider } from "@/components/mood/mood-theme-provider";
-import { OnboardingProvider } from "@/hooks/useOnboarding";
 import { NotificationProvider } from "@/components/ui/notification-system";
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -49,7 +48,6 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <NotificationProvider>
-              <OnboardingProvider>
                 <MoodThemeProvider>
                   {children}
                   <Toaster 
@@ -75,7 +73,6 @@ export default function RootLayout({
                     }}
                   />
                 </MoodThemeProvider>
-              </OnboardingProvider>
             </NotificationProvider>
           </AuthProvider>
         </ThemeProvider>

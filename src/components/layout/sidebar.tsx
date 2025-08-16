@@ -8,7 +8,6 @@ import {
   LayoutDashboard, 
   Receipt, 
   Tag, 
-  Trophy,
   IndianRupee,
   Zap,
   BookOpen
@@ -38,11 +37,6 @@ const navigation = [
     name: 'Categories',
     href: '/categories',
     icon: Tag,
-  },
-  {
-    name: 'Gamification',
-    href: '/gamification',
-    icon: Trophy,
   },
   {
     name: 'Blog',

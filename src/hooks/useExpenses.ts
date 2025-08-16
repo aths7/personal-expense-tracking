@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { expensesService } from '@/services/expenses';
-import { gamificationService } from '@/services/gamification';
 import { expenseEvents } from '@/lib/expense-events';
 import type { Expense, ExpenseFormData, FilterOptions } from '@/types';
 import { toast } from 'sonner';
@@ -54,7 +53,7 @@ export const useExpenses = (initialFilters: FilterOptions = {}) => {
         
         // Check for achievements
         setTimeout(async () => {
-          await gamificationService.checkAchievements();
+          // Gamification removed
         }, 1000);
         
         return { success: true, data: newExpense };
@@ -70,7 +69,7 @@ export const useExpenses = (initialFilters: FilterOptions = {}) => {
 
   const checkAchievements = async () => {
     try {
-      await gamificationService.checkAchievements();
+      // Gamification removed
     } catch {
       // Silently handle achievement check failures
     }

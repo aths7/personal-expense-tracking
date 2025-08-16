@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Sidebar } from './sidebar';
 import { Header } from './header';
 import { MoodIndicator } from '@/components/mood/mood-theme-provider';
-import { OnboardingManager } from '@/components/onboarding/onboarding-manager';
 import { cn } from '@/lib/utils';
 
 interface DashboardLayoutProps {
@@ -48,7 +47,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <MoodIndicator />
 
       {/* Onboarding System */}
-      <OnboardingManager />
     </div>
   );
 }
