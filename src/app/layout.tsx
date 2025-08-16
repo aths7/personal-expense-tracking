@@ -4,6 +4,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { MoodThemeProvider } from "@/components/mood/mood-theme-provider";
 import { NotificationProvider } from "@/components/ui/notification-system";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -15,6 +16,20 @@ export const metadata: Metadata = {
   keywords: ["expense tracker", "personal finance", "money management", "budgeting", "financial tracking", "paisa paisa"],
   authors: [{ name: "₹ Paisa Paisa" }],
   creator: "₹ Paisa Paisa",
+  manifest: "/manifest.json",
+  themeColor: "#6366f1",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: "cover",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Paisa Paisa",
+  },
   openGraph: {
     title: "₹ Paisa Paisa - Personal Expense Tracker",
     description: "Track your expenses and manage your finances with ease",
@@ -29,11 +44,22 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
-      { url: '/apple-icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
     ],
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-capable': 'yes',
+    'apple-mobile-web-app-status-bar-style': 'default',
+    'apple-mobile-web-app-title': 'Paisa Paisa',
+    'application-name': 'Paisa Paisa',
+    'msapplication-TileColor': '#6366f1',
+    'msapplication-config': '/browserconfig.xml',
   },
 };
 
@@ -50,6 +76,7 @@ export default function RootLayout({
             <NotificationProvider>
                 <MoodThemeProvider>
                   {children}
+                  <InstallPrompt />
                   <Toaster 
                     richColors 
                     position="top-right" 
