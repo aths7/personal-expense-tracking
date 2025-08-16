@@ -65,3 +65,6 @@ export interface DashboardStats {
 }
 
 export type Theme = 'light' | 'dark' | 'system';
+
+// Re-export blog types
+export type { BlogPost, BlogCategory, BlogTag } from './blog';

@@ -1,6 +1,7 @@
 import { updateSession } from '@/lib/supabase/middleware';
 
 export async function middleware(request: any) {
+  console.log('🔥 MIDDLEWARE CALLED:', request.nextUrl.pathname);
   return await updateSession(request);
 }
 
@@ -11,8 +12,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - api routes (handled separately)
+     * - static assets
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)',
   ],
 };

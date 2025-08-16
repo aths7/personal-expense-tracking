@@ -7,6 +7,7 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { LandingHeader } from '@/components/layout/landing-header';
 import { HeroSection } from '@/components/sections/hero-section';
 import { FeaturesGrid } from '@/components/sections/features-grid';
+import { HomeBlogSection } from '@/components/blog/home-blog-section';
 import { CTASection } from '@/components/sections/cta-section';
 import { LandingFooter } from '@/components/layout/landing-footer';
 
@@ -38,6 +39,9 @@ export default function Home() {
         <div className="container mx-auto px-6 lg:px-8">
           <HeroSection />
           <FeaturesGrid />
+        </div>
+        <HomeBlogSection />
+        <div className="container mx-auto px-6 lg:px-8">
           <CTASection />
         </div>
       </main>

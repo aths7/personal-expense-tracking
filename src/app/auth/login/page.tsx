@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { authService } from '@/services/auth';
-import { toast } from 'sonner';
+import { customToast } from '@/lib/toast';
 import { ArrowLeft, IndianRupee, Eye, EyeOff } from 'lucide-react';
 
 const loginSchema = z.object({
@@ -25,6 +25,8 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
 
   const {
     register,
@@ -41,17 +43,27 @@ export default function LoginPage() {
       const { user, error } = await authService.signIn(data.email, data.password);
       
       if (error) {
-        toast.error(error.message || 'Failed to sign in');
+        customToast.errorWithRetry(
+          error.message || 'Failed to sign in',
+          () => onSubmit(data),
+          {
+            description: 'Please check your credentials and try again'
+          }
+        );
         return;
       }
 
       if (user) {
-        toast.success('Successfully signed in!');
-        router.push('/dashboard');
+        customToast.success('Successfully signed in!', {
+          description: 'Redirecting to your dashboard...'
+        });
+        router.push(redirectTo);
         router.refresh();
       }
     } catch {
-      toast.error('An unexpected error occurred');
+      customToast.error('An unexpected error occurred', {
+        description: 'Please try again or contact support if the problem persists'
+      });
     } finally {
       setIsLoading(false);
     }

@@ -26,6 +26,15 @@ export function LandingHeader() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4 lg:space-x-6 animate-fade-in">
+            <nav className="flex items-center space-x-1">
+              <Button 
+                asChild 
+                variant="ghost" 
+                className="hover:bg-primary/10 hover:text-primary dark:hover:text-primary transition-all duration-300 font-medium px-4 lg:px-6 py-2.5 rounded-full text-foreground dark:text-foreground"
+              >
+                <Link href="/blog">Blog</Link>
+              </Button>
+            </nav>
             <ThemeToggle />
             <div className="flex space-x-3">
               <Button 
@@ -64,6 +73,14 @@ export function LandingHeader() {
         {isMenuOpen && (
           <div className="md:hidden mt-4 animate-fade-in">
             <div className="glass-morphism dark:glass-morphism-dark rounded-2xl p-4 space-y-3">
+              <Button 
+                asChild 
+                variant="ghost" 
+                className="w-full justify-center hover:bg-primary/10 hover:text-primary dark:hover:text-primary transition-all duration-300 font-medium py-3 rounded-full text-foreground dark:text-foreground"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <Link href="/blog">Blog</Link>
+              </Button>
               <Button 
                 asChild 
                 variant="ghost" 

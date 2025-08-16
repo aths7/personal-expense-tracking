@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { authService } from '@/services/auth';
-import { toast } from 'sonner';
+import { customToast } from '@/lib/toast';
 import { ArrowLeft, IndianRupee, Eye, EyeOff } from 'lucide-react';
 
 const signupSchema = z.object({
@@ -30,6 +30,8 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo');
 
   const {
     register,
@@ -46,16 +48,23 @@ export default function SignupPage() {
       const { user, error } = await authService.signUp(data.email, data.password);
       
       if (error) {
-        toast.error(error.message || 'Failed to sign up');
+        customToast.error(error.message || 'Failed to sign up', {
+          description: 'Please check your information and try again'
+        });
         return;
       }
 
       if (user) {
-        toast.success('Account created successfully! Please check your email for verification.');
-        router.push('/auth/login');
+        customToast.success('Account created successfully!', {
+          description: 'Please check your email for verification before signing in'
+        });
+        const loginUrl = redirectTo ? `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}` : '/auth/login';
+        router.push(loginUrl);
       }
     } catch {
-      toast.error('An unexpected error occurred');
+      customToast.error('An unexpected error occurred', {
+        description: 'Please try again or contact support if the problem persists'
+      });
     } finally {
       setIsLoading(false);
     }

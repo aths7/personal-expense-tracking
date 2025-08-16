@@ -10,7 +10,8 @@ import {
   Tag, 
   Trophy,
   IndianRupee,
-  Zap
+  Zap,
+  BookOpen
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -42,6 +43,11 @@ const navigation = [
     name: 'Gamification',
     href: '/gamification',
     icon: Trophy,
+  },
+  {
+    name: 'Blog',
+    href: '/blog',
+    icon: BookOpen,
   },
 ];
 

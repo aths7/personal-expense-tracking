@@ -77,7 +77,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 }
 
 function NotificationContainer() {
-  const { notifications, removeNotification } = useNotifications();
+  const { notifications, removeNotification, clearAll } = useNotifications();
 
   const getIcon = (type: Notification['type']) => {
     const icons = {
@@ -91,10 +91,10 @@ function NotificationContainer() {
 
   const getColors = (type: Notification['type']) => {
     const colors = {
-      success: 'border-green-200 bg-green-50 text-green-800',
-      error: 'border-red-200 bg-red-50 text-red-800',
-      warning: 'border-yellow-200 bg-yellow-50 text-yellow-800',
-      info: 'border-blue-200 bg-blue-50 text-blue-800',
+      success: 'border-green-500/30 bg-green-500/10 text-green-600 dark:text-green-400',
+      error: 'border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400',
+      warning: 'border-yellow-500/30 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400',
+      info: 'border-blue-500/30 bg-blue-500/10 text-blue-600 dark:text-blue-400',
     };
     return colors[type];
   };
@@ -111,6 +111,21 @@ function NotificationContainer() {
 
   return (
     <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full">
+      {/* Clear All Button */}
+      {notifications.length > 1 && (
+        <motion.button
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={clearAll}
+          className="mb-2 text-xs text-muted-foreground hover:text-foreground bg-background/80 backdrop-blur-sm border border-border/30 rounded-full px-3 py-1 ml-auto block transition-colors"
+        >
+          Clear All ({notifications.length})
+        </motion.button>
+      )}
+      
       <AnimatePresence mode="popLayout">
         {notifications.map((notification) => {
           const Icon = getIcon(notification.type);
@@ -124,7 +139,7 @@ function NotificationContainer() {
               whileHover={{ scale: 1.02 }}
               layout
               className={cn(
-                'relative rounded-lg border p-4 shadow-lg backdrop-blur-sm',
+                'relative rounded-xl border p-4 shadow-elegant backdrop-blur-md glass-morphism dark:glass-morphism-dark',
                 getColors(notification.type)
               )}
             >
@@ -152,8 +167,9 @@ function NotificationContainer() {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="flex-shrink-0 opacity-60 hover:opacity-100"
+                  className="flex-shrink-0 opacity-60 hover:opacity-100 p-1 rounded-full hover:bg-background/20 transition-colors"
                   onClick={() => removeNotification(notification.id)}
+                  aria-label="Close notification"
                 >
                   <X className="w-4 h-4" />
                 </motion.button>
