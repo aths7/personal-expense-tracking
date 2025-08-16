@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { authService } from '@/services/auth';
 import { customToast } from '@/lib/toast';
+import { GuestGuard } from '@/components/auth/auth-guard';
 import { ArrowLeft, IndianRupee, Eye, EyeOff } from 'lucide-react';
 
 const loginSchema = z.object({
@@ -70,7 +71,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-premium-gradient dark:bg-premium-gradient-dark relative overflow-hidden">
+    <GuestGuard>
+      <div className="min-h-screen bg-premium-gradient dark:bg-premium-gradient-dark relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float"></div>
@@ -202,6 +204,7 @@ export default function LoginPage() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </GuestGuard>
   );
 }

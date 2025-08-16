@@ -1,5 +1,6 @@
 'use client';
 
+import { AuthGuard } from '@/components/auth/auth-guard';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -92,7 +93,8 @@ export default function DashboardPage() {
 
   if (statsLoading) {
     return (
-      <DashboardLayout>
+      <AuthGuard>
+        <DashboardLayout>
         <div className="space-y-6">
           {/* Header */}
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 lg:gap-0">
@@ -158,12 +160,14 @@ export default function DashboardPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         </div>
-      </DashboardLayout>
+        </DashboardLayout>
+      </AuthGuard>
     );
   }
 
   return (
-    <DashboardLayout>
+    <AuthGuard>
+      <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 lg:gap-0">
@@ -385,6 +389,7 @@ export default function DashboardPage() {
         onClose={() => setIsExpenseModalOpen(false)}
         redirectAfterSubmit={true}
       />
-    </DashboardLayout>
+      </DashboardLayout>
+    </AuthGuard>
   );
 }

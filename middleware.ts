@@ -1,20 +1,33 @@
-import { updateSession } from '@/lib/supabase/middleware';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function middleware(request: any) {
+export async function middleware(request: NextRequest) {
   console.log('🔥 MIDDLEWARE CALLED:', request.nextUrl.pathname);
-  return await updateSession(request);
+  
+  // Simple test - redirect to login for protected routes
+  const protectedRoutes = ['/dashboard', '/expenses', '/categories', '/gamification', '/quick-expenses'];
+  const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
+  
+  if (isProtectedRoute) {
+    console.log('🔒 PROTECTED ROUTE - redirecting to login');
+    const url = request.nextUrl.clone();
+    url.pathname = '/auth/login';
+    url.searchParams.set('redirectTo', request.nextUrl.pathname);
+    return NextResponse.redirect(url);
+  }
+  
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except for:
+     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - api routes (handled separately)
      * - static assets
      */
-    '/((?!_next/static|_next/image|favicon.ico|api/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|icon|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)',
   ],
 };

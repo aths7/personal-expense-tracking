@@ -30,18 +30,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Debug logging (remove in production)
-  console.log(`Middleware: ${request.nextUrl.pathname}, User: ${user ? 'authenticated' : 'not authenticated'}`);
-
   // Protected routes that require authentication
   const protectedRoutes = ['/dashboard', '/expenses', '/categories', '/gamification', '/quick-expenses'];
   const isProtectedRoute = protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route));
   
-  console.log(`Is protected route: ${isProtectedRoute}, Path: ${request.nextUrl.pathname}`);
+  // Debug logging
+  console.log(`[MIDDLEWARE] Path: ${request.nextUrl.pathname}, Protected: ${isProtectedRoute}, User: ${user ? 'Yes' : 'No'}`);
   
   // Redirect unauthenticated users to login
   if (isProtectedRoute && !user) {
-    console.log(`Redirecting to login from ${request.nextUrl.pathname}`);
+    console.log(`[MIDDLEWARE] Redirecting to login from ${request.nextUrl.pathname}`);
     const url = request.nextUrl.clone();
     url.pathname = '/auth/login';
     // Store the original URL to redirect back after login

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { AuthGuard } from '@/components/auth/auth-guard';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -82,16 +83,19 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <AuthGuard>
+        <DashboardLayout>
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
         </div>
-      </DashboardLayout>
+        </DashboardLayout>
+      </AuthGuard>
     );
   }
 
   return (
-    <DashboardLayout>
+    <AuthGuard>
+      <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -258,6 +262,7 @@ export default function CategoriesPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </AuthGuard>
   );
 }

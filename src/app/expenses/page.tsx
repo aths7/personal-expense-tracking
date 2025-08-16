@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { AuthGuard } from '@/components/auth/auth-guard';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Button } from '@/components/ui/button';
@@ -139,7 +140,8 @@ export default function ExpensesPage() {
   };
 
   return (
-    <DashboardLayout>
+    <AuthGuard>
+      <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -371,6 +373,7 @@ export default function ExpensesPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </AuthGuard>
   );
 }

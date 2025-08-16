@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { AuthGuard } from '@/components/auth/auth-guard';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,16 +50,19 @@ export default function GamificationPage() {
 
   if (loading || achievementsLoading || !gameStats) {
     return (
-      <DashboardLayout>
+      <AuthGuard>
+        <DashboardLayout>
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
         </div>
-      </DashboardLayout>
+        </DashboardLayout>
+      </AuthGuard>
     );
   }
 
   return (
-    <DashboardLayout>
+    <AuthGuard>
+      <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div>
@@ -175,6 +179,7 @@ export default function GamificationPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardLayout>
+      </DashboardLayout>
+    </AuthGuard>
   );
 }
