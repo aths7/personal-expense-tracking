@@ -2,72 +2,33 @@
 
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { StatCard } from '@/components/ui/stat-card';
+import { PageHeader } from '@/components/ui/page-header';
+import { RecentExpensesCard } from '@/components/ui/recent-expenses-card';
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 import { ExpenseCharts, CategoryBarChart } from '@/components/charts/expense-charts';
 import { QuickExpenseButton } from '@/components/expenses/quick-expense-button';
 import { ExpenseModal } from '@/components/expenses/expense-modal';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useExpenses } from '@/hooks/useExpenses';
+import { useResponsiveDate } from '@/hooks/useResponsiveDate';
 import { formatCurrency } from '@/lib/currency';
-import { formatDate } from '@/utils/dates';
 import {
   IndianRupee,
-  TrendingUp,
-  TrendingDown,
   Plus,
   ReceiptIndianRupee,
   Calendar,
+  TrendingUp,
 } from 'lucide-react';
-import Link from 'next/link';
 import { useMemo, useState } from 'react';
 
-function StatCard({
-  title,
-  value,
-  description,
-  icon: Icon,
-  trend
-}: {
-  title: string;
-  value: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  trend?: 'up' | 'down' | 'neutral';
-}) {
-  const getTrendIcon = () => {
-    if (trend === 'up') return <TrendingUp className="h-4 w-4 text-green-500" />;
-    if (trend === 'down') return <TrendingDown className="h-4 w-4 text-red-500" />;
-    return null;
-  };
-
-  return (
-    <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-foreground">{title}</CardTitle>
-        <div className="p-2 rounded-lg bg-primary/10">
-          <Icon className="h-4 w-4 text-primary" />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-foreground">{value}</div>
-        <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-          {getTrendIcon()}
-          <span>{description}</span>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function DashboardPage() {
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const { stats, loading: statsLoading } = useDashboard();
-  const { expenses, loading: expensesLoading } = useExpenses({ limit: 5 }); // Only fetch 5 recent expenses
-
-  const recentExpenses = useMemo(() => {
-    return expenses.slice(0, 5);
-  }, [expenses]);
+  const { expenses, loading: expensesLoading } = useExpenses({ limit: 5 });
+  const { full: fullDate, short: shortDate } = useResponsiveDate();
 
   const monthlyChange = useMemo(() => {
     if (stats.totalLastMonth === 0) return 0;
@@ -80,7 +41,6 @@ export default function DashboardPage() {
     return 'neutral';
   };
 
-  // Show progressive loading - show stats first, then other components
   const showStats = !statsLoading;
   const showRecentExpenses = !expensesLoading;
 
@@ -88,71 +48,33 @@ export default function DashboardPage() {
     return (
       <AuthGuard>
         <DashboardLayout>
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 lg:gap-0">
-            <div className="space-y-2">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient-moonlight">Current Status</h1>
-                <div className="px-3 py-1 glass-morphism dark:glass-morphism-dark rounded-full border border-primary/20 w-fit">
-                  <p className="text-sm font-medium text-primary">
-                    <span className="hidden sm:inline">
-                      {new Date().toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                    </span>
-                    <span className="sm:hidden">
-                      {new Date().toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </span>
-                  </p>
-                </div>
-              </div>
-              <p className="text-muted-foreground">
-                Overview of your financial activity
-              </p>
+          <div className="space-y-6">
+            <PageHeader
+              title="Current Status"
+              subtitle="Overview of your financial activity"
+              dateInfo={`${fullDate}|${shortDate}`}
+              gradient
+              actions={
+                <>
+                  <QuickExpenseButton />
+                  <Button
+                    onClick={() => setIsExpenseModalOpen(true)}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5 rounded-full font-semibold"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Add Expense</span>
+                    <span className="sm:hidden">Add</span>
+                  </Button>
+                </>
+              }
+            />
+            
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <LoadingSkeleton type="stat-card" count={4} />
             </div>
-            <div className="flex items-center gap-3">
-              <QuickExpenseButton />
-              <Button
-                onClick={() => setIsExpenseModalOpen(true)}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5 rounded-full font-semibold"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Add Expense</span>
-                <span className="sm:hidden">Add</span>
-              </Button>
-            </div>
+            
+            <LoadingSkeleton type="spinner" />
           </div>
-
-          {/* Loading Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Card key={i} className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <div className="h-4 bg-muted animate-pulse rounded w-20"></div>
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <div className="h-4 w-4 bg-muted animate-pulse rounded"></div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-8 bg-muted animate-pulse rounded w-24 mb-2"></div>
-                  <div className="h-3 bg-muted animate-pulse rounded w-32"></div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        </div>
         </DashboardLayout>
       </AuthGuard>
     );
@@ -162,49 +84,26 @@ export default function DashboardPage() {
     <AuthGuard>
       <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 lg:gap-0">
-          <div className="space-y-2">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient-moonlight">Current Status</h1>
-              <div className="px-3 py-1 glass-morphism dark:glass-morphism-dark rounded-full border border-primary/20 w-fit">
-                <p className="text-sm font-medium text-primary">
-                  <span className="hidden sm:inline">
-                    {new Date().toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </span>
-                  <span className="sm:hidden">
-                    {new Date().toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
-                  </span>
-                </p>
-              </div>
-            </div>
-            <p className="text-muted-foreground">
-              Overview of your financial activity
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <QuickExpenseButton />
-            <Button
-              onClick={() => setIsExpenseModalOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5 rounded-full font-semibold"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Add Expense</span>
-              <span className="sm:hidden">Add</span>
-            </Button>
-          </div>
-        </div>
+        <PageHeader
+          title="Current Status"
+          subtitle="Overview of your financial activity"
+          dateInfo={`${fullDate}|${shortDate}`}
+          gradient
+          actions={
+            <>
+              <QuickExpenseButton />
+              <Button
+                onClick={() => setIsExpenseModalOpen(true)}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5 rounded-full font-semibold"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Add Expense</span>
+                <span className="sm:hidden">Add</span>
+              </Button>
+            </>
+          }
+        />
 
-        {/* Stats Cards */}
         {showStats && (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
@@ -241,62 +140,12 @@ export default function DashboardPage() {
         {/* Category Bar Chart */}
         {showStats && <CategoryBarChart categoryBreakdown={stats.categoryBreakdown} />}
 
-        {/* Recent Expenses */}
         <div className="grid gap-6">
-          {/* Recent Expenses */}
-          <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant">
-            <CardHeader>
-              <CardTitle className="text-foreground">Recent Expenses</CardTitle>
-              <CardDescription>
-                Your latest transactions
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!showRecentExpenses ? (
-                // Loading skeleton for recent expenses
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-lg">
-                      <div className="space-y-2 flex-1">
-                        <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
-                        <div className="h-3 bg-muted animate-pulse rounded w-1/2"></div>
-                      </div>
-                      <div className="h-4 bg-muted animate-pulse rounded w-16"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <>
-                  {recentExpenses.map((expense) => (
-                    <div key={expense.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-primary/5 transition-colors duration-200">
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium text-foreground">{expense.description}</p>
-                        <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                          <span>{expense.category?.name}</span>
-                          <span>•</span>
-                          <span>{formatDate(expense.date)}</span>
-                        </div>
-                      </div>
-                      <div className="text-sm font-semibold text-primary">
-                        {formatCurrency(expense.amount)}
-                      </div>
-                    </div>
-                  ))}
-                  {recentExpenses.length === 0 && (
-                    <p className="text-muted-foreground text-center py-4">
-                      No expenses recorded yet
-                    </p>
-                  )}
-                  {recentExpenses.length > 0 && (
-                    <Button asChild variant="outline" className="w-full mt-4 border-primary/30 hover:border-primary/50 hover:bg-primary/5">
-                      <Link href="/expenses">View All Expenses</Link>
-                    </Button>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
-
+          <RecentExpensesCard 
+            expenses={expenses} 
+            loading={expensesLoading} 
+            limit={5} 
+          />
         </div>
       </div>
 
