@@ -27,6 +27,16 @@ interface UseAuthFormOptions {
   type: 'login' | 'signup';
 }
 
+// Helper function to convert string to title case
+const toTitleCase = (str: string): string => {
+  if (!str || typeof str !== 'string') return str || '';
+  const cleaned = str.trim();
+  if (!cleaned) return '';
+  return cleaned.toLowerCase().split(' ').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
+};
+
 export function useAuthForm({ type }: UseAuthFormOptions) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -47,19 +57,20 @@ export function useAuthForm({ type }: UseAuthFormOptions) {
         const { user, error } = await authService.signIn(data.email, data.password);
 
         if (error) {
+          const errorMessage = error?.message ? toTitleCase(error.message) : 'Login Failed';
           customToast.errorWithRetry(
-            error.message || 'Failed to sign in',
+            errorMessage,
             () => onSubmit(data),
             {
-              description: 'Please check your credentials and try again'
+              description: 'Try Again',
             }
           );
           return;
         }
 
         if (user) {
-          customToast.success('Successfully signed in!', {
-            description: 'Redirecting to your dashboard...'
+          customToast.success('Successfully Signed In!', {
+            description: 'Redirecting To Your Dashboard...'
           });
           router.push(redirectTo);
           router.refresh();
@@ -68,15 +79,16 @@ export function useAuthForm({ type }: UseAuthFormOptions) {
         const { user, error } = await authService.signUp(data.email, data.password);
 
         if (error) {
-          customToast.error(error.message || 'Failed to sign up', {
-            description: 'Please check your information and try again'
+          const errorMessage = error?.message ? toTitleCase(error.message) : 'Failed To Sign Up';
+          customToast.error(errorMessage, {
+            description: 'Please Check Your Information And Try Again'
           });
           return;
         }
 
         if (user) {
-          customToast.success('Account created successfully!', {
-            description: 'Please check your email for verification before signing in'
+          customToast.success('Account Created Successfully!', {
+            description: 'Please Check Your Email For Verification Before Signing In'
           });
           const loginUrl = redirectTo !== '/dashboard' 
             ? `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}` 
@@ -85,8 +97,8 @@ export function useAuthForm({ type }: UseAuthFormOptions) {
         }
       }
     } catch {
-      customToast.error('An unexpected error occurred', {
-        description: 'Please try again or contact support if the problem persists'
+      customToast.error('An Unexpected Error Occurred', {
+        description: 'Please Try Again Or Contact Support If The Problem Persists'
       });
     } finally {
       setIsLoading(false);
