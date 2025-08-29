@@ -60,7 +60,7 @@ function VerifyOtpPageContent() {
             description: 'Redirecting to your dashboard...'
           }
         );
-        
+
         const redirectTo = searchParams.get('redirectTo') || '/dashboard';
         router.push(redirectTo);
         router.refresh();
@@ -76,14 +76,14 @@ function VerifyOtpPageContent() {
 
   const handleResendOtp = async () => {
     setIsLoading(true);
-    
+
     try {
       if (type === 'signup') {
         await authService.signUp(email);
       } else {
         await authService.signIn(email);
       }
-      
+
       customToast.success('OTP code resent!', {
         description: 'Please check your email for the new code'
       });
@@ -109,18 +109,18 @@ function VerifyOtpPageContent() {
           <div className="w-full max-w-md animate-slide-up">
             <AuthBranding subtitle="Enter the verification code sent to your email" />
             <form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(); }}>
-              <AuthCard 
+              <AuthCard
                 title="Verify Your Email"
-                description={`We've sent a 6-digit code to ${email}`}
+                description={`We&apos;ve sent a 6-digit code to ${email}`}
                 footer={
                   <>
-                    <AuthSubmitButton 
-                      isLoading={isLoading} 
+                    <AuthSubmitButton
+                      isLoading={isLoading}
                       loadingText="Verifying..."
                     >
                       Verify Code
                     </AuthSubmitButton>
-                    
+
                     <div className="text-center space-y-2">
                       <button
                         type="button"
@@ -128,10 +128,10 @@ function VerifyOtpPageContent() {
                         disabled={isLoading}
                         className="text-sm text-primary hover:text-primary/80 font-medium transition-colors duration-200 hover:underline disabled:opacity-50"
                       >
-                        Didn't receive the code? Resend
+                        Did not receive the code? Resend
                       </button>
-                      
-                      <AuthFooterLink 
+
+                      <AuthFooterLink
                         text="Want to use a different email?"
                         linkText="Go back"
                         href={type === 'signup' ? '/auth/signup' : '/auth/login'}
@@ -142,7 +142,7 @@ function VerifyOtpPageContent() {
               >
                 <div className="space-y-6">
                   <div className="space-y-4">
-                    <OtpInput 
+                    <OtpInput
                       value={otp}
                       onChange={(value) => {
                         setOtp(value);

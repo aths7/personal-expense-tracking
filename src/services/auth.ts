@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-import type { AuthError, User, AuthOtpResponse } from '@supabase/supabase-js';
+import type { AuthError, User } from '@supabase/supabase-js';
 
 export interface AuthService {
   signUp: (email: string) => Promise<{ user: User | null; error: AuthError | null }>;
@@ -12,13 +12,14 @@ export interface AuthService {
 export const authService: AuthService = {
   signUp: async (email: string) => {
     const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/verify`,
+        shouldCreateUser: true, // Create user if they don't exist
       },
     });
-    return { user: data.user, error };
+    return { user: null, error };
   },
 
   signIn: async (email: string) => {

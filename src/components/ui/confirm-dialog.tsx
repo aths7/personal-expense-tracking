@@ -7,13 +7,7 @@ interface ConfirmDialogOptions {
 
 export function useConfirmDialog() {
   const confirm = async (options: ConfirmDialogOptions): Promise<boolean> => {
-    const {
-      title,
-      message,
-      confirmText = 'Yes',
-      cancelText = 'Cancel'
-    } = options;
-
+    const { title, message } = options;
     return window.confirm(`${title}\n\n${message}`);
   };
 

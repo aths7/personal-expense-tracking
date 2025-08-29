@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { confirmDelete } from '@/components/ui/confirm-dialog';
 
 interface UsePageActionsOptions {
-  onDelete?: (id: string) => Promise<void>;
+  onDelete?: (id: string) => Promise<void | { success: boolean; error?: any }>;
   deleteItemName?: string;
   deleteConsequence?: string;
 }

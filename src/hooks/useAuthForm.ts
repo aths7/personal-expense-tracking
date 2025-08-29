@@ -64,7 +64,7 @@ export function useAuthForm({ type }: UseAuthFormOptions) {
         router.push(verifyUrl);
         
       } else {
-        const { user, error } = await authService.signUp(data.email);
+        const { error } = await authService.signUp(data.email);
 
         if (error) {
           const errorMessage = error?.message ? toTitleCase(error.message) : 'Failed To Create Account';
