@@ -27,10 +27,10 @@ function SignupPageContent() {
             <form onSubmit={onSubmit}>
               <AuthCard
                 title="Create Account"
-                description="Join thousands who are mastering their finances"
+                description="Enter your email to create your account"
                 footer={
                   <>
-                    <AuthSubmitButton isLoading={isLoading} loadingText="Creating account...">
+                    <AuthSubmitButton isLoading={isLoading} loadingText="Sending verification...">
                       Create Account
                     </AuthSubmitButton>
                     <AuthFooterLink
@@ -47,25 +47,7 @@ function SignupPageContent() {
                   name="email"
                   label="Email Address"
                   type="email"
-                  placeholder="Enter your email"
-                />
-                <AuthInput
-                  register={register}
-                  errors={errors}
-                  name="password"
-                  label="Password"
-                  type="password"
-                  placeholder="Create a strong password"
-                  showPasswordToggle={true}
-                />
-                <AuthInput
-                  register={register}
-                  errors={errors}
-                  name="confirmPassword"
-                  label="Confirm Password"
-                  type="password"
-                  placeholder="Confirm your password"
-                  showPasswordToggle={true}
+                  placeholder="Enter your email address"
                 />
               </AuthCard>
             </form>

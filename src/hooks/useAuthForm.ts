@@ -6,22 +6,11 @@ import { z } from 'zod';
 import { authService } from '@/services/auth';
 import { customToast } from '@/lib/toast';
 
-const loginSchema = z.object({
+const authSchema = z.object({
   email: z.string().email('Please enter a valid email'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-const signupSchema = z.object({
-  email: z.string().email('Please enter a valid email'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string().min(6, 'Password must be at least 6 characters'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-export type LoginFormData = z.infer<typeof loginSchema>;
-export type SignupFormData = z.infer<typeof signupSchema>;
+export type AuthFormData = z.infer<typeof authSchema>;
 
 interface UseAuthFormOptions {
   type: 'login' | 'signup';
@@ -43,58 +32,57 @@ export function useAuthForm({ type }: UseAuthFormOptions) {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/dashboard';
 
-  const schema = type === 'login' ? loginSchema : signupSchema;
+  const schema = authSchema;
   
   const form = useForm({
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = async (data: LoginFormData | SignupFormData) => {
+  const onSubmit = async (data: AuthFormData) => {
     setIsLoading(true);
 
     try {
       if (type === 'login') {
-        const { user, error } = await authService.signIn(data.email, data.password);
+        const { error } = await authService.signIn(data.email);
 
         if (error) {
-          const errorMessage = error?.message ? toTitleCase(error.message) : 'Login Failed';
-          customToast.errorWithRetry(
-            errorMessage,
-            () => onSubmit(data),
-            {
-              description: 'Try Again',
-            }
-          );
-          return;
-        }
-
-        if (user) {
-          customToast.success('Successfully Signed In!', {
-            description: 'Redirecting To Your Dashboard...'
-          });
-          router.push(redirectTo);
-          router.refresh();
-        }
-      } else {
-        const { user, error } = await authService.signUp(data.email, data.password);
-
-        if (error) {
-          const errorMessage = error?.message ? toTitleCase(error.message) : 'Failed To Sign Up';
+          const errorMessage = error?.message ? toTitleCase(error.message) : 'Failed To Send OTP';
           customToast.error(errorMessage, {
-            description: 'Please Check Your Information And Try Again'
+            description: 'Please Check Your Email And Try Again'
           });
           return;
         }
 
-        if (user) {
-          customToast.success('Account Created Successfully!', {
-            description: 'Please Check Your Email For Verification Before Signing In'
+        customToast.success('OTP Sent!', {
+          description: 'Please Check Your Email For The Verification Code'
+        });
+        
+        // Redirect to OTP verification page
+        const verifyUrl = `/auth/verify?email=${encodeURIComponent(data.email)}&type=magiclink${
+          redirectTo !== '/dashboard' ? `&redirectTo=${encodeURIComponent(redirectTo)}` : ''
+        }`;
+        router.push(verifyUrl);
+        
+      } else {
+        const { user, error } = await authService.signUp(data.email);
+
+        if (error) {
+          const errorMessage = error?.message ? toTitleCase(error.message) : 'Failed To Create Account';
+          customToast.error(errorMessage, {
+            description: 'Please Check Your Email And Try Again'
           });
-          const loginUrl = redirectTo !== '/dashboard' 
-            ? `/auth/login?redirectTo=${encodeURIComponent(redirectTo)}` 
-            : '/auth/login';
-          router.push(loginUrl);
+          return;
         }
+
+        customToast.success('Verification Email Sent!', {
+          description: 'Please Check Your Email To Verify Your Account'
+        });
+        
+        // Redirect to OTP verification page
+        const verifyUrl = `/auth/verify?email=${encodeURIComponent(data.email)}&type=signup${
+          redirectTo !== '/dashboard' ? `&redirectTo=${encodeURIComponent(redirectTo)}` : ''
+        }`;
+        router.push(verifyUrl);
       }
     } catch {
       customToast.error('An Unexpected Error Occurred', {

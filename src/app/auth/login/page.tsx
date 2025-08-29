@@ -28,11 +28,11 @@ function LoginPageContent() {
             <form onSubmit={onSubmit}>
               <AuthCard 
                 title="Sign In"
-                description="Enter your credentials to access your account"
+                description="Enter your email to receive a verification code"
                 footer={
                   <>
-                    <AuthSubmitButton isLoading={isLoading} loadingText="Signing in...">
-                      Sign In
+                    <AuthSubmitButton isLoading={isLoading} loadingText="Sending code...">
+                      Send Verification Code
                     </AuthSubmitButton>
                     <AuthFooterLink 
                       text="Don't have an account?"
@@ -48,16 +48,7 @@ function LoginPageContent() {
                   name="email"
                   label="Email Address"
                   type="email"
-                  placeholder="Enter your email"
-                />
-                <AuthInput
-                  register={register}
-                  errors={errors}
-                  name="password"
-                  label="Password"
-                  type="password"
-                  placeholder="Enter your password"
-                  showPasswordToggle={true}
+                  placeholder="Enter your email address"
                 />
               </AuthCard>
             </form>
