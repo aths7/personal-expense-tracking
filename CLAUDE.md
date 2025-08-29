@@ -86,25 +86,95 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 
 
-## Code Refactoring Guidelines
+## Code Refactoring Standards
 
-### Single Responsibility Principle (SRP)
-When refactoring code, ensure each file and function has a single, well-defined responsibility:
+### Component Extraction Principles
+When refactoring pages and components, follow these standards:
 
+#### 1. Single Responsibility Principle (SRP)
 - **Components**: Each component should handle one UI concern
-- **Hooks**: Each custom hook should manage one piece of state or logic
+- **Hooks**: Each custom hook should manage one piece of state or logic  
 - **Utilities**: Each utility function should perform one specific task
 - **API modules**: Each module should handle one domain's API calls
 
-
-### File Size Constraints
-- **Maximum 150 lines per file** - If a file exceeds this, split it into smaller, focused modules
+#### 2. File Size Constraints
+- **Maximum 150 lines per file** - If exceeded, split into smaller, focused modules
 - Break large components into smaller sub-components
 - Extract complex logic into custom hooks or utility functions
 - Split large API modules by feature or resource type
 
+#### 3. Reusable Component Creation
+When extracting components from pages, create them in appropriate locations:
+
+**UI Components** (`src/components/ui/`):
+- **Atomic UI elements**: Buttons, inputs, cards, dialogs
+- **Layout components**: Headers, sections, containers
+- **Display components**: Stat cards, loading states, empty states
+- **Form components**: Specialized input variants, form layouts
+
+**Shared Hooks** (`src/hooks/`):
+- **State management**: Form handling, UI state, data fetching
+- **Business logic**: Authentication, validation, API interactions
+- **Utility hooks**: Date formatting, responsive behavior, confirmation dialogs
+
+#### 4. Component Design Standards
+- **Props Interface**: Always define clear TypeScript interfaces
+- **Default Values**: Provide sensible defaults for optional props
+- **Composition**: Prefer composition over inheritance
+- **Flexibility**: Make components configurable via props
+- **Consistency**: Follow existing naming conventions and patterns
+
+#### 5. Hook Design Standards
+- **Single Concern**: Each hook should manage one aspect of logic
+- **Return Objects**: Return objects with descriptive property names
+- **Loading States**: Include loading/error states where applicable
+- **Memoization**: Use useMemo/useCallback for expensive operations
+- **Dependencies**: Clearly document dependencies in effect arrays
+
+#### 6. Refactoring Process
+1. **Analyze**: Identify repeated patterns, large components, complex logic
+2. **Extract**: Create reusable components and hooks
+3. **Replace**: Update original pages to use extracted components
+4. **Test**: Ensure functionality remains intact
+5. **Clean**: Remove unused code and imports
+
+### Implementation Examples
+
+#### Page Header Pattern
+```tsx
+// Before: Inline header in every page
+<div className="flex justify-between items-center">
+  <div>
+    <h1>Page Title</h1>
+    <p>Page description</p>
+  </div>
+  <Button>Action</Button>
+</div>
+
+// After: Reusable PageHeader component
+<PageHeader 
+  title="Page Title"
+  subtitle="Page description" 
+  actions={<Button>Action</Button>}
+/>
+```
+
+#### Form Logic Pattern
+```tsx
+// Before: Inline form handling
+const [isLoading, setIsLoading] = useState(false);
+const form = useForm();
+const onSubmit = async (data) => { /* logic */ };
+
+// After: Shared hook
+const { form, isLoading, onSubmit } = usePageForm({ 
+  type: 'create',
+  service: apiService.create 
+});
+```
+
 ### Styling System
 - CSS custom properties for theming
-- Material-UI integration for complex components
-- Component-specific CSS modules where needed
-- **Use CSS classes from index.css instead of inline styles** - Maintain consistency and reusability
+- Component-specific CSS classes in `src/app/globals.css`
+- **Use existing CSS classes over inline styles** - Maintain consistency
+- Glass morphism and elegant shadows for premium feel
