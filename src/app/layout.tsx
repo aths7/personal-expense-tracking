@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/hooks/useTheme";
 import { MoodThemeProvider } from "@/components/mood/mood-theme-provider";
 import { NotificationProvider } from "@/components/ui/notification-system";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -76,7 +77,9 @@ export default function RootLayout({
           <AuthProvider>
             <NotificationProvider>
                 <MoodThemeProvider>
-                  {children}
+                  <LayoutWrapper>
+                    {children}
+                  </LayoutWrapper>
                   <InstallPrompt />
                   <Toaster 
                     richColors 

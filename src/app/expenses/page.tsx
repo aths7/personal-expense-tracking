@@ -1,9 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { AuthGuard } from '@/components/auth/auth-guard';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -140,8 +138,6 @@ function ExpensesPageContent() {
   };
 
   return (
-    <AuthGuard>
-      <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -373,8 +369,6 @@ function ExpensesPageContent() {
           </DialogContent>
         </Dialog>
       </div>
-      </DashboardLayout>
-    </AuthGuard>
   );
 }
 

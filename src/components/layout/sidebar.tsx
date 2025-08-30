@@ -10,7 +10,8 @@ import {
   Tag, 
   IndianRupee,
   Zap,
-  BookOpen
+  BookOpen,
+  CreditCard
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -37,6 +38,11 @@ const navigation = [
     name: 'Categories',
     href: '/categories',
     icon: Tag,
+  },
+  {
+    name: 'Loans',
+    href: '/loans',
+    icon: CreditCard,
   },
   {
     name: 'Blog',
