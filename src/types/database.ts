@@ -493,6 +493,60 @@ export type Database = {
         }
         Relationships: []
       }
+      loans: {
+        Row: {
+          created_at: string | null
+          currency_code: string
+          effective_interest: number | null
+          emi_amount: number | null
+          end_date: string | null
+          id: string
+          lender_name: string | null
+          loan_amount: number
+          loan_name: string
+          next_emi_date: string | null
+          rate_of_interest: number
+          start_date: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          currency_code?: string
+          effective_interest?: number | null
+          emi_amount?: number | null
+          end_date?: string | null
+          id?: string
+          lender_name?: string | null
+          loan_amount: number
+          loan_name: string
+          next_emi_date?: string | null
+          rate_of_interest: number
+          start_date: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          currency_code?: string
+          effective_interest?: number | null
+          emi_amount?: number | null
+          end_date?: string | null
+          id?: string
+          lender_name?: string | null
+          loan_amount?: number
+          loan_name?: string
+          next_emi_date?: string | null
+          rate_of_interest?: number
+          start_date?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       mini_games: {
         Row: {
           created_at: string | null
@@ -965,13 +1019,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      increment_user_points: {
-        Args: {
-          user_id_param: string
-          points_to_add: number
-        }
-        Returns: undefined
-      }
       update_user_streaks: {
         Args: Record<PropertyKey, never>
         Returns: undefined
