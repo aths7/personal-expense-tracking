@@ -9,11 +9,15 @@ import LoanModal from "./add-loan-modal";
 
 
 export default function LoansPage() {
-    const [openModel, setOpenModel] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
 
     const addLoanButtonClick = () => {
-        setOpenModel(true);
+        setOpenModal(true);
     }
+    const closeModal = () => {
+        setOpenModal(false);
+    }
+
     return (
         <div className="space-y-6">
             <PageHeader
@@ -26,7 +30,7 @@ export default function LoansPage() {
                     </>
                 }
             />
-            {openModel && <LoanModal />}
+            <LoanModal closeModal={closeModal} openModal={openModal} />
 
         </div >
     );
