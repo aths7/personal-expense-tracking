@@ -8,9 +8,14 @@ import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import BackDrop from '@/components/ui/backdrop';
 import ModalAnimation from '@/components/ui/modal-animation';
-import { Controller } from 'react-hook-form';
+import { Controller, Control, FieldValues, Path } from 'react-hook-form';
 import { z } from "zod"
 import { zodResolver } from '@hookform/resolvers/zod';
+import { formatCurrency } from '@/lib/currency';
+
+// AmountField.tsx
+import { useState, useEffect } from "react";
+
 
 function SelectTypeOfDate({ selectedValue, onChange, options, ...props }: { onChange?: any, selectedValue?: string, options?: { [key: string]: string } }) {
     return (
@@ -21,11 +26,11 @@ function SelectTypeOfDate({ selectedValue, onChange, options, ...props }: { onCh
                 {...props}
             >
                 <SelectTrigger>
-                    <SelectValue placeholder="All categories" />
+                    <SelectValue placeholder="Duration" />
                 </SelectTrigger>
                 <SelectContent>
                     {options && Object.entries(options).map(([key, value]) => (
-                        <SelectItem value={key}>{value}</SelectItem>
+                        <SelectItem key={key} value={key}>{value}</SelectItem>
                     ))}
                 </SelectContent>
             </Select>
@@ -48,6 +53,72 @@ function MyIcons({ iconType }: { iconType: String }) {
 
 }
 
+function formatINR(n?: number) {
+    if (n === undefined || Number.isNaN(n)) return "";
+    return n.toLocaleString("en-IN");
+}
+function parseDigits(s: string) {
+    const d = s.replace(/[^\d]/g, "");
+    return d ? Number(d) : undefined;
+}
+
+type AmountFieldProps<T extends FieldValues> = {
+    control: Control<T>;
+    name: Path<T>;
+    label?: string;
+    placeholder?: string;
+};
+
+export function AmountField<T extends FieldValues>({
+    control,
+    name,
+    label = "Amount",
+    placeholder = "28,00,000",
+}: AmountFieldProps<T>) {
+    const [display, setDisplay] = useState("");
+
+    return (
+        <Controller
+            control={control}
+            name={name}
+            render={({ field, fieldState }) => {
+                // keep local display in sync when RHF value changes externally
+                useEffect(() => {
+                    setDisplay(field.value ? formatINR(Number(field.value)) : "");
+                }, [field.value]);
+
+                return (
+                    <div className="space-y-2">
+                        <Label className="text-sm font-medium text-foreground">{label}</Label>
+                        <div className="relative">
+                            <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                inputMode="numeric"
+                                placeholder={placeholder}
+                                className="pl-10 text-lg font-semibold"
+                                value={display}
+                                onChange={(e) => {
+                                    const num = parseDigits(e.target.value);
+                                    setDisplay(e.target.value);        // show what user typed (before blur)
+                                    field.onChange(num ?? undefined);  // keep RHF numeric
+                                }}
+                                onBlur={(e) => {
+                                    const num = parseDigits(e.target.value);
+                                    setDisplay(num !== undefined ? formatINR(num) : "");
+                                    field.onBlur();
+                                }}
+                            />
+                        </div>
+                        {fieldState.error && (
+                            <p className="text-sm font-medium text-red-500">{fieldState.error.message}</p>
+                        )}
+                    </div>
+                );
+            }}
+        />
+    );
+}
+
 function ModalFormInput({ name, label, placeholder, type, defaultValue, value, icon, customClass, errors, ...props }: { name?: string, label?: string, placeholder?: string, type?: string, defaultValue?: string, value?: any, customClass?: string, icon?: string, errors?: any }) {
     return (
         <div className='space-y-2'>
@@ -58,11 +129,12 @@ function ModalFormInput({ name, label, placeholder, type, defaultValue, value, i
                 {icon && <MyIcons iconType={icon} />}
                 <Input
                     placeholder={placeholder}
-                    onChange={(e) => console.log(e.target.value)}
+                    // onChange={(e) => console.log(e.target.value)}
                     className={`pl-10 text-lg font-semibold bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200 ${customClass}`}
                     type={type}
                     // defaultValue={defaultValue}
                     // value={value}
+                    name={name}
                     {...props}
                 />
             </div>
@@ -101,7 +173,7 @@ const loanSchema = z.object({
     loanDuration: z.string().min(1, 'Macha, seriously?'),
     roiDuration: z.string().min(1, "Don't play with me!"),
     loanStartDate: z.date({ error: 'When did you crushing debt start?' }),
-    amount: z.number().positive('Amount must be positive'),
+    amount: z.number().positive(),
     duration: z.number().positive('It must be positive'),
 
 });
@@ -111,12 +183,14 @@ type LoanFormData = z.infer<typeof loanSchema>;
 
 export default function LoanModal({ openModal, closeModal }) {
 
-    const { register, formState: { errors }, reset, handleSubmit, control } = useForm<LoanFormData>({
+    const { register, formState: { errors }, watch, reset, handleSubmit, control } = useForm<LoanFormData>({
         resolver: zodResolver(loanSchema),
         defaultValues: {
             loanStartDate: new Date(),
         },
     });
+
+    const amount = watch('amount');
 
     const handleClose = () => {
         reset();
@@ -145,7 +219,13 @@ export default function LoanModal({ openModal, closeModal }) {
                                 <ModalHeader closeModal={handleClose} />
                                 <CardContent className='space-y-4'>
                                     <ModalFormInput name={'loanName'} label='Loan Name' placeholder='Home Loan...' icon={"loan"} {...register('loanName')} errors={errors} />
-                                    <ModalFormInput name={'amount'} label='Amount' placeholder='28,00,000' type='number' icon='rupee' {...register('amount', { valueAsNumber: true })} />
+                                    {/* <ModalFormInput name={'amount'} label='Amount' placeholder='28,00,000' type='number' icon='rupee' {...register('amount', { valueAsNumber: true })} />
+                                    {amount && amount > 0 && (
+                                        <p className="text-sm text-primary font-medium">
+                                            {formatCurrency(amount)}
+                                        </p>
+                                    )} */}
+                                    <AmountField control={control} name={"amount"} />
                                     <ModalFormInput label='Bank / Lender' placeholder='Cred' {...register('lenderName')} errors={errors} name='lenderName' />
 
                                     <div className={classes.inputSelectWrapper}>
@@ -155,6 +235,11 @@ export default function LoanModal({ openModal, closeModal }) {
                                         <Controller name="roiDuration" control={control} render={({ field, fieldState }) => (
                                             <div>
                                                 <SelectTypeOfDate selectedValue={field.value} options={{ "month": "Per Month", "year": "Per Year" }} onChange={field.onChange} />
+                                                {fieldState.error && (
+                                                    <p className="text-sm text font-medium">
+                                                        {fieldState.error.message}
+                                                    </p>
+                                                )}
                                             </div>
                                         )} />
                                     </div>
@@ -166,6 +251,11 @@ export default function LoanModal({ openModal, closeModal }) {
                                         <Controller name="loanDuration" control={control} render={({ field, fieldState }) => (
                                             <div>
                                                 <SelectTypeOfDate selectedValue={field.value} options={{ "month": "Months", "year": "Years" }} onChange={field.onChange} />
+                                                {fieldState.error && (
+                                                    <p className="text-sm text font-medium">
+                                                        {fieldState.error.message}
+                                                    </p>
+                                                )}
                                             </div>
                                         )} />
                                     </div>
