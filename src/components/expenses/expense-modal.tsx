@@ -17,6 +17,8 @@ import { useExpenses } from '@/hooks/useExpenses';
 import { useCategories } from '@/hooks/useCategories';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/currency';
+import BackDrop from '../ui/backdrop';
+import ModalAnimation from '../ui/modal-animation';
 
 const expenseSchema = z.object({
   amount: z.number().positive('Amount must be positive'),
@@ -58,7 +60,7 @@ export function ExpenseModal({ isOpen, onClose, redirectAfterSubmit = false }: E
 
   const onSubmit = async (data: ExpenseFormData) => {
     setIsSubmitting(true);
-    
+
     try {
       const expense = await addExpense({
         amount: data.amount,
@@ -71,7 +73,7 @@ export function ExpenseModal({ isOpen, onClose, redirectAfterSubmit = false }: E
         toast.success('Expense added successfully!');
         reset();
         onClose();
-        
+
         // Redirect to expenses page only if requested (from dashboard)
         if (redirectAfterSubmit) {
           router.push('/expenses');
@@ -89,30 +91,19 @@ export function ExpenseModal({ isOpen, onClose, redirectAfterSubmit = false }: E
     reset();
     onClose();
   };
+  const classes = {
+    wrapper: "fixed inset-0 z-50 flex items-center justify-center p-4",
+    cardClass: "glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant backdrop-blur-xl"
+  }
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
-            onClick={handleClose}
-          />
-
-          {/* Modal */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
-              className="w-full max-w-md"
-            >
-              <Card className="glass-morphism dark:glass-morphism-dark border border-border/30 shadow-elegant backdrop-blur-xl">
+          <BackDrop onClick={handleClose} />
+          <div className={classes.wrapper}>
+            <ModalAnimation>
+              <Card className={classes.cardClass}>
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -147,9 +138,8 @@ export function ExpenseModal({ isOpen, onClose, redirectAfterSubmit = false }: E
                           step="0.01"
                           placeholder="0.00"
                           {...register('amount', { valueAsNumber: true })}
-                          className={`pl-10 text-lg font-semibold bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200 ${
-                            errors.amount ? 'border-destructive focus:border-destructive' : ''
-                          }`}
+                          className={`pl-10 text-lg font-semibold bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200 ${errors.amount ? 'border-destructive focus:border-destructive' : ''
+                            }`}
                         />
                       </div>
                       {amount && amount > 0 && (
@@ -171,9 +161,8 @@ export function ExpenseModal({ isOpen, onClose, redirectAfterSubmit = false }: E
                         id="description"
                         placeholder="What was this expense for?"
                         {...register('description')}
-                        className={`bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200 resize-none ${
-                          errors.description ? 'border-destructive focus:border-destructive' : ''
-                        }`}
+                        className={`bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200 resize-none ${errors.description ? 'border-destructive focus:border-destructive' : ''
+                          }`}
                         rows={2}
                       />
                       {errors.description && (
@@ -190,15 +179,14 @@ export function ExpenseModal({ isOpen, onClose, redirectAfterSubmit = false }: E
                         value={selectedCategoryId}
                         onValueChange={(value) => setValue('category_id', value)}
                       >
-                        <SelectTrigger className={`bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200 hover:bg-background/70 ${
-                          errors.category_id ? 'border-destructive focus:border-destructive' : ''
-                        }`}>
+                        <SelectTrigger className={`bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200 hover:bg-background/70 ${errors.category_id ? 'border-destructive focus:border-destructive' : ''
+                          }`}>
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent className="bg-background/95 backdrop-blur-xl border border-border/50 shadow-elegant rounded-lg z-50">
                           {categories?.map((category) => (
-                            <SelectItem 
-                              key={category.id} 
+                            <SelectItem
+                              key={category.id}
                               value={category.id}
                               className="hover:bg-primary/10 focus:bg-primary/10 cursor-pointer"
                             >
@@ -227,9 +215,8 @@ export function ExpenseModal({ isOpen, onClose, redirectAfterSubmit = false }: E
                         id="date"
                         type="date"
                         {...register('date')}
-                        className={`bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200 ${
-                          errors.date ? 'border-destructive focus:border-destructive' : ''
-                        }`}
+                        className={`bg-background/50 border-border/50 focus:border-primary/50 focus:bg-background/80 transition-all duration-200 ${errors.date ? 'border-destructive focus:border-destructive' : ''
+                          }`}
                       />
                       {errors.date && (
                         <p className="text-sm text-destructive font-medium">{errors.date.message}</p>
@@ -272,10 +259,11 @@ export function ExpenseModal({ isOpen, onClose, redirectAfterSubmit = false }: E
                   </CardContent>
                 </form>
               </Card>
-            </motion.div>
+            </ModalAnimation>
           </div>
         </>
-      )}
-    </AnimatePresence>
+      )
+      }
+    </AnimatePresence >
   );
 }

@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { AuthGuard } from '@/components/auth/auth-guard';
-import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
@@ -87,8 +85,6 @@ export default function CategoriesPage() {
   }
 
   return (
-    <AuthGuard>
-      <DashboardLayout>
       <div className="space-y-6">
         <PageHeader
           title="Categories"
@@ -193,7 +189,5 @@ export default function CategoriesPage() {
           </DialogContent>
         </Dialog>
       </div>
-      </DashboardLayout>
-    </AuthGuard>
   );
 }

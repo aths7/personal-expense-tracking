@@ -1,8 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { AuthGuard } from '@/components/auth/auth-guard';
-import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -111,23 +109,17 @@ export default function QuickExpensesPage() {
 
   if (loading) {
     return (
-      <AuthGuard>
-        <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <div className="flex items-center gap-3">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
             <span className="text-muted-foreground">Loading templates...</span>
           </div>
         </div>
-        </DashboardLayout>
-      </AuthGuard>
     );
   }
 
   if (error) {
     return (
-      <AuthGuard>
-        <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <p className="text-destructive mb-2">Error: {error}</p>
@@ -136,14 +128,10 @@ export default function QuickExpensesPage() {
             </Button>
           </div>
         </div>
-        </DashboardLayout>
-      </AuthGuard>
     );
   }
 
   return (
-    <AuthGuard>
-      <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -349,8 +337,6 @@ export default function QuickExpensesPage() {
           </Card>
         )}
       </div>
-      </DashboardLayout>
-    </AuthGuard>
   );
 }
 
