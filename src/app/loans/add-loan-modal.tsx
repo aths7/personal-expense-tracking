@@ -38,7 +38,7 @@ function SelectTypeOfDate({ selectedValue, onChange, options, ...props }: { onCh
     )
 }
 
-function MyIcons({ iconType }: { iconType: String }) {
+function MyIcons({ iconType }: { iconType: string }) {
     const classes = {
         iconClasses: "absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground"
     }
@@ -69,52 +69,70 @@ type AmountFieldProps<T extends FieldValues> = {
     placeholder?: string;
 };
 
+function AmountFieldInner({
+    field,
+    fieldState,
+    label,
+    placeholder,
+}: {
+    field: { value: number | undefined; onChange: (v: number | undefined) => void; onBlur: () => void };
+    fieldState: { error?: { message?: string } };
+    label: string;
+    placeholder: string;
+}) {
+    const [display, setDisplay] = useState("");
+
+    useEffect(() => {
+        setDisplay(field.value ? formatINR(Number(field.value)) : "");
+    }, [field.value]);
+
+    return (
+        <div className="space-y-2">
+            <Label className="text-sm font-medium text-foreground">{label}</Label>
+            <div className="relative">
+                <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                    inputMode="numeric"
+                    placeholder={placeholder}
+                    className="pl-10 text-lg font-semibold"
+                    value={display}
+                    onChange={(e) => {
+                        const num = parseDigits(e.target.value);
+                        setDisplay(e.target.value);
+                        field.onChange(num ?? undefined);
+                    }}
+                    onBlur={(e) => {
+                        const num = parseDigits(e.target.value);
+                        setDisplay(num !== undefined ? formatINR(num) : "");
+                        field.onBlur();
+                    }}
+                />
+            </div>
+            {fieldState.error && (
+                <p className="text-sm font-medium text-red-500">{fieldState.error.message}</p>
+            )}
+        </div>
+    );
+}
+
 export function AmountField<T extends FieldValues>({
     control,
     name,
     label = "Amount",
     placeholder = "28,00,000",
 }: AmountFieldProps<T>) {
-    const [display, setDisplay] = useState("");
-
     return (
         <Controller
             control={control}
             name={name}
-            render={({ field, fieldState }) => {
-                // keep local display in sync when RHF value changes externally
-                useEffect(() => {
-                    setDisplay(field.value ? formatINR(Number(field.value)) : "");
-                }, [field.value]);
-
-                return (
-                    <div className="space-y-2">
-                        <Label className="text-sm font-medium text-foreground">{label}</Label>
-                        <div className="relative">
-                            <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                inputMode="numeric"
-                                placeholder={placeholder}
-                                className="pl-10 text-lg font-semibold"
-                                value={display}
-                                onChange={(e) => {
-                                    const num = parseDigits(e.target.value);
-                                    setDisplay(e.target.value);        // show what user typed (before blur)
-                                    field.onChange(num ?? undefined);  // keep RHF numeric
-                                }}
-                                onBlur={(e) => {
-                                    const num = parseDigits(e.target.value);
-                                    setDisplay(num !== undefined ? formatINR(num) : "");
-                                    field.onBlur();
-                                }}
-                            />
-                        </div>
-                        {fieldState.error && (
-                            <p className="text-sm font-medium text-red-500">{fieldState.error.message}</p>
-                        )}
-                    </div>
-                );
-            }}
+            render={({ field, fieldState }) => (
+                <AmountFieldInner
+                    field={field}
+                    fieldState={fieldState}
+                    label={label}
+                    placeholder={placeholder}
+                />
+            )}
         />
     );
 }
