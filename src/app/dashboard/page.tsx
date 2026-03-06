@@ -155,6 +155,7 @@ export default function DashboardPage() {
         onClose={() => setIsExpenseModalOpen(false)}
         redirectAfterSubmit={true}
       />
-    </>
+    </DashboardLayout>
+  </AuthGuard>
   );
 }
