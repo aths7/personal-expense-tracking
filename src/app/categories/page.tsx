@@ -75,7 +75,13 @@ export default function CategoriesPage() {
   };
 
   if (loading) {
-    return <LoadingSkeleton type="spinner" />;
+    return (
+      <AuthGuard>
+        <DashboardLayout>
+          <LoadingSkeleton type="spinner" />
+        </DashboardLayout>
+      </AuthGuard>
+    );
   }
 
   return (

@@ -1,5 +1,7 @@
 'use client';
 
+import { AuthGuard } from '@/components/auth/auth-guard';
+import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Button } from '@/components/ui/button';
 import { StatCard } from '@/components/ui/stat-card';
 import { PageHeader } from '@/components/ui/page-header';
@@ -44,7 +46,9 @@ export default function DashboardPage() {
 
   if (statsLoading) {
     return (
-      <div className="space-y-6">
+      <AuthGuard>
+        <DashboardLayout>
+          <div className="space-y-6">
             <PageHeader
               title="Current Status"
               subtitle="Overview of your financial activity"
@@ -69,13 +73,16 @@ export default function DashboardPage() {
               <LoadingSkeleton type="stat-card" count={4} />
             </div>
             
-        <LoadingSkeleton type="spinner" />
-      </div>
+            <LoadingSkeleton type="spinner" />
+          </div>
+        </DashboardLayout>
+      </AuthGuard>
     );
   }
 
   return (
-    <>
+    <AuthGuard>
+      <DashboardLayout>
       <div className="space-y-6">
         <PageHeader
           title="Current Status"
