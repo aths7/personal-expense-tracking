@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+
 export function LandingFooter() {
   return (
     <footer className="relative z-10 mt-24">
@@ -20,15 +22,15 @@ export function LandingFooter() {
                 Professional financial management, elegantly designed
               </p>
             </div>
-            
+
             {/* Divider */}
             <div className="w-full max-w-md h-px bg-gradient-to-r from-transparent via-border to-transparent opacity-50"></div>
-            
+
             {/* Links */}
             <div className="flex flex-wrap justify-center gap-8 text-sm animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium">
+              <Link href="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium">
                 Privacy Policy
-              </a>
+              </Link>
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium">
                 Terms of Service
               </a>
@@ -39,11 +41,11 @@ export function LandingFooter() {
                 Documentation
               </a>
             </div>
-            
+
             {/* Copyright */}
             <div className="text-center text-sm text-muted-foreground/70 animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <p className="font-light">
-                &copy; 2024 Personal Expense Tracker. Crafted with care using Next.js and Supabase.
+                &copy; 2026 Personal Expense Tracker. Crafted with care using Next.js
               </p>
               <p className="mt-2 text-xs opacity-75">
                 Made with ❤️ for financial professionals worldwide

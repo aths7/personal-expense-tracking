@@ -37,15 +37,8 @@ export function LandingHeader() {
             </nav>
             <ThemeToggle />
             <div className="flex space-x-3">
-              <Button 
-                asChild 
-                variant="ghost" 
-                className="hover:bg-primary/10 hover:text-primary dark:hover:text-primary transition-all duration-300 font-medium px-4 lg:px-6 py-2.5 rounded-full text-foreground dark:text-foreground"
-              >
-                <Link href="/auth/login">Sign In</Link>
-              </Button>
-              <Button 
-                asChild 
+              <Button
+                asChild
                 className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-4 lg:px-6 py-2.5 rounded-full shadow-elegant hover:shadow-elegant-hover transition-all duration-300 hover:-translate-y-0.5"
               >
                 <Link href="/auth/signup">Get Started</Link>
@@ -81,15 +74,7 @@ export function LandingHeader() {
               >
                 <Link href="/blog">Blog</Link>
               </Button>
-              <Button 
-                asChild 
-                variant="ghost" 
-                className="w-full justify-center hover:bg-primary/10 hover:text-primary dark:hover:text-primary transition-all duration-300 font-medium py-3 rounded-full text-foreground dark:text-foreground"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Link href="/auth/login">Sign In</Link>
-              </Button>
-              <Button 
+              <Button
                 asChild 
                 className="w-full justify-center bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 rounded-full shadow-elegant transition-all duration-300"
                 onClick={() => setIsMenuOpen(false)}

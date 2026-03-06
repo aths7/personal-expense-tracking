@@ -29,10 +29,10 @@ export function BlogLayout({ children }: BlogLayoutProps) {
                 </Link>
               </Button>
             </div>
-            
+
             <div className="flex items-center space-x-4">
-              <Link 
-                href="/" 
+              <Link
+                href="/"
                 className="text-xl font-bold text-gradient-moonlight"
               >
                 ₹ Paisa Paisa
@@ -57,7 +57,7 @@ export function BlogLayout({ children }: BlogLayoutProps) {
                 Your trusted companion for personal expense tracking and financial management.
               </p>
             </div>
-            
+
             <div>
               <h4 className="font-medium text-foreground mb-4">Quick Links</h4>
               <div className="space-y-2">
@@ -72,7 +72,7 @@ export function BlogLayout({ children }: BlogLayoutProps) {
                 </Link>
               </div>
             </div>
-            
+
             <div>
               <h4 className="font-medium text-foreground mb-4">Financial Topics</h4>
               <div className="space-y-2">
@@ -88,9 +88,9 @@ export function BlogLayout({ children }: BlogLayoutProps) {
               </div>
             </div>
           </div>
-          
+
           <div className="border-t border-border/30 mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 ₹ Paisa Paisa. All rights reserved.</p>
+            <p>&copy; 2026 ₹ Paisa Paisa. All rights reserved.</p>
           </div>
         </div>
       </footer>
